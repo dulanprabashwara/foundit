@@ -45,6 +45,7 @@ export default function ProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [recentReports, setRecentReports] = useState<Report[]>([]);
+  const [locationText, setLocationText] = useState('Fetching location...');
   const { updateProfileData } = useAuth();
 
   // Notification Settings state
@@ -95,6 +96,33 @@ export default function ProfilePage() {
       setRadius(settings.radius || 5);
     }
   }, []);
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+        const data = await res.json();
+        if (data && data.address) {
+          const city = data.address.city || data.address.town || data.address.village || data.address.county;
+          const state = data.address.state || data.address.country;
+          if (city && state) setLocationText(`${city}, ${state}`);
+          else if (city || state) setLocationText(city || state);
+          else setLocationText('Location saved');
+        } else {
+          setLocationText('Location saved');
+        }
+      } catch (err) {
+        setLocationText('Location saved');
+      }
+    };
+    
+    // Debounce to prevent rapid API calls while sliding
+    const timeoutId = setTimeout(() => {
+      fetchLocation();
+    }, 1000);
+    
+    return () => clearTimeout(timeoutId);
+  }, [latitude, longitude]);
 
   const handleSaveChanges = async () => {
     setSavingProfile(true);
@@ -215,15 +243,12 @@ export default function ProfilePage() {
               </label>
             </div>
             <div className="mt-1">
-              <h1 className="text-3xl font-bold text-slate-900">{fullName}</h1>
+              <h1 className="text-3xl font-bold text-slate-900">{originalFullName}</h1>
               <div className="flex items-center justify-center md:justify-start gap-1.5 text-slate-500 mt-2 mb-4">
                 <MapPin className="w-4 h-4" />
-                <span className="text-sm font-medium">Seattle, WA</span>
+                <span className="text-sm font-medium">{locationText}</span>
               </div>
               <div className="flex items-center justify-center md:justify-start gap-2">
-                <span className="px-3 py-1 bg-teal-100 text-teal-700 text-xs font-bold rounded-full">
-                  Verified User
-                </span>
                 <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full">
                   Member since 2023
                 </span>
