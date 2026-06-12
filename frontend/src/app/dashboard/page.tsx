@@ -175,7 +175,7 @@ export default function DashboardPage() {
                         : {}
                     }
                   >
-                    <div className="w-5 h-5 mask-icon bg-current" style={{ maskImage: `url(${cat.icon})`, WebkitMaskImage: `url(${cat.icon})` }} />
+                    <img src={cat.icon} alt={cat.label} className="w-5 h-5 object-contain" />
                     {cat.label}
                   </button>
                 ))}

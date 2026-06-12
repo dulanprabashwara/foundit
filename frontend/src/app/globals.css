@@ -140,15 +140,6 @@ body {
   border-radius: 8px;
 }
 
-.mask-icon {
-  mask-size: contain;
-  -webkit-mask-size: contain;
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
-  mask-position: center;
-  -webkit-mask-position: center;
-}
-
 /* Glass morphism card */
 .glass-card {
   background: rgba(255, 255, 255, 0.85);

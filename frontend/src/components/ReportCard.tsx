@@ -62,7 +62,7 @@ export default function ReportCard({ report, index = 0 }: ReportCardProps) {
         ) : (
           <div className={`h-48 flex items-center justify-center bg-indigo-50/50`}>
                 <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 group-hover:scale-105 transition-transform duration-500">
-                  <div className="w-16 h-16 mask-icon bg-slate-400 mb-2 opacity-50" style={{ maskImage: `url(${categoryInfo.icon})`, WebkitMaskImage: `url(${categoryInfo.icon})` }} />
+                  <img src={categoryInfo.icon} alt={categoryInfo.label} className="w-16 h-16 object-contain mb-2 opacity-50" />
                 </div>
           </div>
         )}
@@ -86,7 +86,7 @@ export default function ReportCard({ report, index = 0 }: ReportCardProps) {
             <span
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700"
             >
-              <div className="w-4 h-4 mask-icon bg-primary-600" style={{ maskImage: `url(${categoryInfo.icon})`, WebkitMaskImage: `url(${categoryInfo.icon})` }} />
+              <img src={categoryInfo.icon} alt={categoryInfo.label} className="w-4 h-4 object-contain" />
               {categoryInfo.label}
             </span>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-600">

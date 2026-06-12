@@ -318,12 +318,16 @@ export default function NewReportPage() {
                         onClick={() => setCategory(cat.value)}
                         className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200 ${
                           category === cat.value
-                            ? 'border-primary-500 bg-primary-50 shadow-sm text-primary-600'
-                            : 'border-slate-200 hover:border-slate-300 bg-white text-slate-500'
+                            ? 'border-primary-500 bg-primary-50 shadow-sm'
+                            : 'border-slate-200 hover:border-slate-300 bg-white'
                         }`}
                       >
-                        <div className="w-8 h-8 mask-icon bg-current" style={{ maskImage: `url(${cat.icon})`, WebkitMaskImage: `url(${cat.icon})` }} />
-                        <span className="text-xs font-medium">
+                        <img src={cat.icon} alt={cat.label} className="w-8 h-8 object-contain" />
+                        <span
+                          className={`text-xs font-medium ${
+                            category === cat.value ? 'text-primary-700' : 'text-slate-600'
+                          }`}
+                        >
                           {cat.label}
                         </span>
                       </button>
