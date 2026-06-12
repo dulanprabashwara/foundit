@@ -6,7 +6,23 @@ import { reportApi } from '@/lib/api';
 import { Report, getCategoryInfo, CATEGORIES } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { Search, Loader2, MapPin, Clock, Filter, X } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+
+function timeAgo(dateString: string | Date) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
+}
 
 export default function SearchPage() {
   const router = useRouter();
@@ -161,7 +177,7 @@ export default function SearchPage() {
                       <div className="flex items-center justify-between text-xs font-medium text-slate-400 pt-4 border-t border-slate-100">
                         <div className="flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5" />
-                          <span>{formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}</span>
+                          <span>{timeAgo(report.createdAt)}</span>
                         </div>
                       </div>
                     </div>
