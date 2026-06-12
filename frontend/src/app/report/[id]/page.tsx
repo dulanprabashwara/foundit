@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import MapView from '@/components/MapView';
-import { reportApi, commentApi } from '@/lib/api';
+import { reportApi, commentApi, userApi } from '@/lib/api';
 import { Report, Comment, getCategoryInfo, CATEGORIES, Category } from '@/lib/types';
 import {
   ArrowLeft,
@@ -494,8 +494,14 @@ export default function ReportDetailPage() {
                 <div className="space-y-4 mb-6">
                   {comments.map((comment) => (
                     <div key={comment.id} className="flex gap-3 animate-fade-in">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold">
-                        {comment.author.name[0]?.toUpperCase()}
+                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden relative">
+                        <span className="relative z-0">{comment.author.name[0]?.toUpperCase()}</span>
+                        <img 
+                          src={userApi.getImageUrl(comment.authorId)} 
+                          alt={comment.author.name} 
+                          className="absolute inset-0 z-10 w-full h-full object-cover bg-white"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -529,8 +535,12 @@ export default function ReportDetailPage() {
 
               {/* Add comment */}
               <form onSubmit={handleAddComment} className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold">
-                  {user?.displayName?.[0]?.toUpperCase() || 'U'}
+                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
+                  {user?.photoURL ? (
+                    <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    user?.displayName?.[0]?.toUpperCase() || 'U'
+                  )}
                 </div>
                 <div className="flex-1 flex gap-2">
                   <input
