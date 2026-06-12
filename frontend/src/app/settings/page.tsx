@@ -220,7 +220,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 pb-16">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 pb-16">
         
         {/* Profile Header Card */}
         <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between mb-6 gap-6 md:gap-0">
