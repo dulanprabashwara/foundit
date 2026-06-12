@@ -74,7 +74,7 @@ export default function ProfilePage() {
           setOriginalPhoneNumber(data.phone);
         }
         if (data.hasPhoto) {
-          const url = userApi.getImageUrl(user.uid);
+          const url = `${userApi.getImageUrl(user.uid)}?t=${Date.now()}`;
           setPhotoUrl(url);
           setOriginalPhotoUrl(url);
         }
