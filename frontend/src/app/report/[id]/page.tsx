@@ -122,7 +122,7 @@ export default function ReportDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-transparent">
         <Navbar />
         <div className="flex items-center justify-center py-32">
           <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
@@ -133,7 +133,7 @@ export default function ReportDetailPage() {
 
   if (error && !report) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-transparent">
         <Navbar />
         <div className="max-w-3xl mx-auto px-4 py-20 text-center">
           <AlertCircle className="w-12 h-12 text-rose-400 mx-auto mb-4" />
@@ -156,7 +156,7 @@ export default function ReportDetailPage() {
   const isResolved = report.status === 'RESOLVED';
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-transparent">
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
