@@ -289,7 +289,11 @@ export default function DashboardPage() {
                     reports={sortedReports}
                     selectedReportId={selectedReportId}
                     onReportSelect={(id) => {
-                      router.push(`/report/${id}`);
+                      if (viewMode === 'map') {
+                        router.push(`/report/${id}`);
+                      } else {
+                        setSelectedReportId(id);
+                      }
                     }}
                     className="w-full h-full"
                   />
