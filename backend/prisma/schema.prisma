@@ -1,0 +1,55 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       String    @id // Matches Firebase Auth UID
+  email    String    @unique
+  name     String
+  reports  Report[]
+  comments Comment[]
+}
+
+model Report {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    Category
+  status      Status   @default(ACTIVE)
+  latitude    Float
+  longitude   Float
+  imageData   Bytes?   // Raw binary image data stored in PostgreSQL
+  createdAt   DateTime @default(now())
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  comments    Comment[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  text      String
+  createdAt DateTime @default(now())
+  reportId  String
+  report    Report   @relation(fields: [reportId], references: [id])
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+enum Category {
+  PETS
+  ELECTRONICS
+  KEYS
+  WALLET
+  BAG
+  OTHER
+}
+
+enum Status {
+  ACTIVE
+  RESOLVED
+}
