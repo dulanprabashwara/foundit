@@ -295,23 +295,18 @@ export default function ReportDetailPage() {
                   {categoryInfo.label}
                 </span>
                 <span
-                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
                     isResolved
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-amber-100 text-amber-700'
+                      ? 'bg-slate-200 text-slate-700'
+                      : 'bg-emerald-200 text-emerald-800'
                   }`}
                 >
-                  {isResolved ? (
-                    <>
-                      <CheckCircle2 className="w-3 h-3" />
-                      Resolved
-                    </>
-                  ) : (
-                    <>
-                      <AlertCircle className="w-3 h-3" />
-                      Active
-                    </>
-                  )}
+                  <img 
+                    src={isResolved ? '/resolved.png' : '/active.png'} 
+                    alt={isResolved ? 'Resolved' : 'Active'} 
+                    className="w-4 h-4 object-contain" 
+                  />
+                  {isResolved ? 'RESOLVED' : 'ACTIVE'}
                 </span>
               </div>
 

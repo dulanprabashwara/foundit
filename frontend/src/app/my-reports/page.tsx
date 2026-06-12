@@ -221,12 +221,17 @@ export default function MyReportsPage() {
                   {/* Badge */}
                   <div className="mb-8">
                     <span
-                      className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
                         isResolved
                           ? 'bg-slate-200 text-slate-600'
                           : 'bg-emerald-300/40 text-emerald-700'
                       }`}
                     >
+                      <img 
+                        src={isResolved ? '/resolved.png' : '/active.png'} 
+                        alt={isResolved ? 'Resolved' : 'Active'} 
+                        className="w-4 h-4 object-contain" 
+                      />
                       {isResolved ? 'RESOLVED' : 'ACTIVE'}
                     </span>
                   </div>

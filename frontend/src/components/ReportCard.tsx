@@ -39,12 +39,17 @@ export default function ReportCard({ report, index = 0 }: ReportCardProps) {
           </div>
           
           {/* Status Badge */}
-          <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm ${
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm ${
             isResolved 
-              ? 'bg-emerald-100 text-emerald-700' 
-              : 'bg-rose-100 text-rose-600'
+              ? 'bg-slate-200 text-slate-700' 
+              : 'bg-emerald-200 text-emerald-800'
           }`}>
-            {isResolved ? 'RESOLVED' : 'LOST'}
+            <img 
+              src={isResolved ? '/resolved.png' : '/active.png'} 
+              alt={isResolved ? 'Resolved' : 'Active'} 
+              className="w-3.5 h-3.5 object-contain" 
+            />
+            {isResolved ? 'RESOLVED' : 'ACTIVE'}
           </div>
         </div>
 
