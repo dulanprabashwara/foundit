@@ -22,13 +22,16 @@ router.post('/sync', authenticate, async (req, res) => {
   try {
     const { uid, email, name } = req.user;
 
+    const defaultName = email ? email.split('@')[0] : 'Unknown User';
+    const finalName = req.body.name || name || defaultName;
+
     const user = await prisma.user.upsert({
       where: { id: uid },
-      update: { email, name: req.body.name || name },
+      update: { email, name: finalName },
       create: {
         id: uid,
         email,
-        name: req.body.name || name,
+        name: finalName,
       },
     });
 
@@ -73,9 +76,16 @@ router.patch('/me', authenticate, upload.single('image'), async (req, res) => {
     if (phone !== undefined) updateData.phone = phone; // Allow empty string to clear
     if (req.file) updateData.photoData = req.file.buffer;
 
-    const user = await prisma.user.update({
+    const user = await prisma.user.upsert({
       where: { id: req.user.uid },
-      data: updateData,
+      update: updateData,
+      create: {
+        id: req.user.uid,
+        email: req.user.email,
+        name: name || req.user.name || (req.user.email ? req.user.email.split('@')[0] : 'Unknown User'),
+        phone: phone || null,
+        photoData: req.file ? req.file.buffer : null,
+      },
     });
 
     const { photoData, ...rest } = user;
