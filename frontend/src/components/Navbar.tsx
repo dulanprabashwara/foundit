@@ -52,7 +52,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation (Centered) */}
-          <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2 h-full">
+          <div className="hidden md:flex items-center gap-14 absolute left-1/2 -translate-x-1/2 h-full">
             {navLinks.map((link) => {
               const active = isActive(link.href) || (link.href === '/dashboard' && pathname === '/');
               return (
