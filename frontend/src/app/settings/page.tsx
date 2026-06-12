@@ -63,9 +63,9 @@ export default function ProfilePage() {
     if (!authLoading && !user) {
       router.push('/');
     } else if (user) {
-      setFullName(user.displayName || 'Jane Doe');
-      setOriginalFullName(user.displayName || 'Jane Doe');
-      setEmail(user.email || 'user@example.com');
+      setFullName(user.displayName || '');
+      setOriginalFullName(user.displayName || '');
+      setEmail(user.email || '');
       
       // Fetch backend user data
       userApi.getMe().then(data => {
@@ -250,7 +250,7 @@ export default function ProfilePage() {
               </div>
               <div className="flex items-center justify-center md:justify-start gap-2">
                 <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full">
-                  Member since 2023
+                  Member since {user?.metadata?.creationTime ? new Date(user.metadata.creationTime).getFullYear() : new Date().getFullYear()}
                 </span>
               </div>
             </div>
@@ -528,34 +528,38 @@ export default function ProfilePage() {
               <Clock className="w-5 h-5 text-indigo-600" />
               Recent Activity
             </h2>
-            <button className="text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+            <button onClick={() => router.push('/my-reports')} className="text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
               View All
             </button>
           </div>
           
-          <div className="relative pl-6 border-l-2 border-slate-100 space-y-8 ml-2">
-            <div className="relative">
-              <div className="absolute -left-[35px] top-0 w-7 h-7 rounded-full bg-rose-100 flex items-center justify-center border-4 border-white shadow-sm">
-                <AlertCircle className="w-3 h-3 text-rose-500" strokeWidth={3} />
-              </div>
-              <p className="text-sm font-bold text-slate-900">Reported "Lost Keys"</p>
-              <p className="text-xs text-slate-500 mt-1 font-medium">Northgate Mall area • 1 hr ago</p>
+          {recentReports.length === 0 ? (
+            <div className="text-center py-8">
+              <Clock className="w-10 h-10 text-slate-200 mx-auto mb-2" />
+              <p className="text-sm text-slate-400">No recent activity yet. Start by reporting a lost item!</p>
             </div>
-            <div className="relative">
-              <div className="absolute -left-[35px] top-0 w-7 h-7 rounded-full bg-teal-100 flex items-center justify-center border-4 border-white shadow-sm">
-                <MapPin className="w-3 h-3 text-teal-600" strokeWidth={3} />
-              </div>
-              <p className="text-sm font-bold text-slate-900">Found "Golden Retriever"</p>
-              <p className="text-xs text-slate-500 mt-1 font-medium">Green Lake Park • 4 hrs ago</p>
+          ) : (
+            <div className="relative pl-6 border-l-2 border-slate-100 space-y-8 ml-2">
+              {recentReports.slice(0, 3).map((report) => (
+                <div key={report.id} className="relative cursor-pointer" onClick={() => router.push(`/report/${report.id}`)}>
+                  <div className={`absolute -left-[35px] top-0 w-7 h-7 rounded-full flex items-center justify-center border-4 border-white shadow-sm ${
+                    report.status === 'RESOLVED' ? 'bg-emerald-100' : 'bg-rose-100'
+                  }`}>
+                    {report.status === 'RESOLVED' 
+                      ? <CheckCircle2 className="w-3 h-3 text-emerald-500" strokeWidth={3} />
+                      : <AlertCircle className="w-3 h-3 text-rose-500" strokeWidth={3} />
+                    }
+                  </div>
+                  <p className="text-sm font-bold text-slate-900">
+                    {report.status === 'RESOLVED' ? 'Resolved' : 'Reported'} "{report.title}"
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1 font-medium">
+                    {new Date(report.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                </div>
+              ))}
             </div>
-            <div className="relative">
-              <div className="absolute -left-[35px] top-0 w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center border-4 border-white shadow-sm">
-                <Camera className="w-3 h-3 text-slate-500" strokeWidth={3} />
-              </div>
-              <p className="text-sm font-bold text-slate-900">Updated profile photo</p>
-              <p className="text-xs text-slate-500 mt-1 font-medium">17 hours ago</p>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Global Save Button */}

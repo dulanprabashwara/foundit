@@ -5,6 +5,7 @@ import { Report, getCategoryInfo } from '@/lib/types';
 import { reportApi } from '@/lib/api';
 import { MapPin, MessageSquare, Clock, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import LocationName from './LocationName';
 
 interface ReportCardProps {
   report: Report;
@@ -31,10 +32,10 @@ export default function ReportCard({ report, index = 0 }: ReportCardProps) {
       >
         {/* Top Badges */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-          {/* Distance Badge (Mocked for now) */}
+          {/* Location Badge */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/90 backdrop-blur-sm text-slate-800 rounded-full text-[10px] font-bold shadow-sm">
             <MapPin className="w-3 h-3 text-rose-500" />
-            2.1 km away
+            <LocationName latitude={report.latitude} longitude={report.longitude} className="max-w-[120px] truncate" />
           </div>
           
           {/* Status Badge */}
@@ -43,7 +44,7 @@ export default function ReportCard({ report, index = 0 }: ReportCardProps) {
               ? 'bg-emerald-100 text-emerald-700' 
               : 'bg-rose-100 text-rose-600'
           }`}>
-            {isResolved ? 'RESOLVED' : (report.id.length % 2 === 0 ? 'LOST' : 'FOUND')}
+            {isResolved ? 'RESOLVED' : 'LOST'}
           </div>
         </div>
 
@@ -107,7 +108,7 @@ export default function ReportCard({ report, index = 0 }: ReportCardProps) {
             </div>
             
             <span className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center">
-              {isResolved ? 'View Details' : (report.id.length % 2 === 0 ? 'Claim Item' : 'I Found This')}
+              {isResolved ? 'View Details' : 'View Report'}
               <svg className="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>

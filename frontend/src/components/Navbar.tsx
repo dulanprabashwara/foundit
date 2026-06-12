@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { notificationApi, commentApi } from '@/lib/api';
+import { Report } from '@/lib/types';
 import {
   MapPin,
   Plus,
@@ -16,14 +18,19 @@ import {
   Settings,
   ChevronDown,
   MessageSquare,
+  Loader2,
 } from 'lucide-react';
 
 export default function Navbar() {
   const { user, signOut } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdown, setProfileDropdown] = useState(false);
   const [notificationsDropdown, setNotificationsDropdown] = useState(false);
+  const [nearbyReports, setNearbyReports] = useState<any[]>([]);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifFetched, setNotifFetched] = useState(false);
 
   const navLinks = [
     { href: '/dashboard', label: 'Home' },
@@ -76,11 +83,27 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-5">
             <div className="relative">
               <button
-                onClick={() => setNotificationsDropdown(!notificationsDropdown)}
+                onClick={() => {
+                  setNotificationsDropdown(!notificationsDropdown);
+                  if (!notifFetched) {
+                    setNotifLoading(true);
+                    const saved = localStorage.getItem('foundit_geofence');
+                    const geo = saved ? JSON.parse(saved) : { latitude: 6.9271, longitude: 79.8612, radius: 5 };
+                    notificationApi.check(geo.latitude, geo.longitude, geo.radius)
+                      .then((data) => {
+                        setNearbyReports(data.reports || []);
+                        setNotifFetched(true);
+                      })
+                      .catch(() => setNearbyReports([]))
+                      .finally(() => setNotifLoading(false));
+                  }
+                }}
                 className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
               >
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full ring-2 ring-white" />
+                {nearbyReports.length > 0 && (
+                  <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full ring-2 ring-white" />
+                )}
               </button>
 
               {notificationsDropdown && (
@@ -89,33 +112,44 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
                     <div className="px-4 py-3 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
                       <h3 className="text-sm font-bold text-slate-800">Notifications</h3>
-                      <span className="text-xs font-medium text-primary-600 cursor-pointer hover:text-primary-700">Mark all as read</span>
+                      <span className="text-xs font-medium text-primary-600">{nearbyReports.length} nearby</span>
                     </div>
                     
                     <div className="max-h-[400px] overflow-y-auto">
-                      {/* Notification 1: Comment */}
-                      <div className="px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <MessageSquare className="w-4 h-4 text-blue-600" />
+                      {notifLoading ? (
+                        <div className="flex justify-center py-8">
+                          <Loader2 className="w-5 h-5 animate-spin text-primary-500" />
                         </div>
-                        <div>
-                          <p className="text-sm text-slate-800"><span className="font-semibold">Alex M.</span> commented on your report <span className="font-semibold">"Lost Keys"</span></p>
-                          <p className="text-xs text-slate-500 mt-1">"Hey, I think I found these near the park entrance..."</p>
-                          <p className="text-[10px] text-slate-400 mt-1">10 minutes ago</p>
+                      ) : nearbyReports.length === 0 ? (
+                        <div className="text-center py-8 px-4">
+                          <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                          <p className="text-sm text-slate-400">No nearby reports in your area</p>
+                          <p className="text-xs text-slate-300 mt-1">Set up your geofence in Profile settings</p>
                         </div>
-                      </div>
-
-                      {/* Notification 2: Nearby Item */}
-                      <div className="px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3">
-                        <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <MapPin className="w-4 h-4 text-rose-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-slate-800"><span className="font-semibold">New Lost Item</span> reported in your area!</p>
-                          <p className="text-xs text-slate-500 mt-1">A "Golden Retriever" was reported lost 1.2km away from your home location.</p>
-                          <p className="text-[10px] text-slate-400 mt-1">2 hours ago</p>
-                        </div>
-                      </div>
+                      ) : (
+                        nearbyReports.slice(0, 5).map((report: any) => (
+                          <div
+                            key={report.id}
+                            onClick={() => {
+                              setNotificationsDropdown(false);
+                              router.push(`/report/${report.id}`);
+                            }}
+                            className="px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center shrink-0 mt-0.5">
+                              <MapPin className="w-4 h-4 text-rose-600" />
+                            </div>
+                            <div>
+                              <p className="text-sm text-slate-800">
+                                <span className="font-semibold">{report.title}</span>
+                              </p>
+                              <p className="text-xs text-slate-500 mt-1">
+                                {report.distance}km away • by {report.author?.name || 'Unknown'}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                     
                     <Link href="/settings" onClick={() => setNotificationsDropdown(false)} className="block px-4 py-2.5 text-center text-xs font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-700 transition-colors border-t border-slate-100">
