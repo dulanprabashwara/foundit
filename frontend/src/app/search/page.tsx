@@ -59,12 +59,12 @@ export default function SearchPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
+      <main className="flex-1 max-w-[1600px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-8 flex flex-col">
         {/* Header & Search Bar */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-6">Search Reports</h1>
           
-          <div className="relative max-w-3xl">
+          <div className="relative max-w-4xl">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Search className="h-6 w-6 text-slate-400" />
             </div>
@@ -88,7 +88,7 @@ export default function SearchPage() {
 
         {/* Categories */}
         <div className="mb-8 overflow-x-auto pb-2 scrollbar-hide">
-          <div className="flex gap-3">
+          <div className="flex gap-3 md:justify-between w-full min-w-max md:min-w-0 md:flex-wrap">
             <button
               onClick={() => setActiveCategory('ALL')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${
