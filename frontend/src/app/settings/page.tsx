@@ -412,6 +412,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+        </div>
 
         {/* Recent Activity Card */}
         <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm mb-12 mt-6">
