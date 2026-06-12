@@ -1,4 +1,4 @@
-const admin = require('../lib/firebase');
+const { getAuth } = require('firebase-admin/auth');
 
 /**
  * Authentication middleware that verifies Firebase ID tokens.
@@ -14,7 +14,7 @@ const authenticate = async (req, res, next) => {
   const idToken = authHeader.split('Bearer ')[1];
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const decodedToken = await getAuth().verifyIdToken(idToken);
     req.user = {
       uid: decodedToken.uid,
       email: decodedToken.email,
@@ -41,7 +41,7 @@ const optionalAuth = async (req, res, next) => {
   const idToken = authHeader.split('Bearer ')[1];
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const decodedToken = await getAuth().verifyIdToken(idToken);
     req.user = {
       uid: decodedToken.uid,
       email: decodedToken.email,
