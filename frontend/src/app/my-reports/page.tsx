@@ -129,7 +129,21 @@ export default function MyReportsPage() {
                   : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300 shadow-sm'
               }`}
             >
-              {status === 'ALL' ? 'All' : status === 'ACTIVE' ? '🟡 Active' : '✅ Resolved'}
+              <span className="flex items-center gap-1.5">
+                {status === 'ALL' ? (
+                  'All'
+                ) : status === 'ACTIVE' ? (
+                  <>
+                    <img src="/active.png" alt="Active" className="w-3.5 h-3.5 object-contain" />
+                    Active
+                  </>
+                ) : (
+                  <>
+                    <img src="/resolved.png" alt="Resolved" className="w-3.5 h-3.5 object-contain" />
+                    Resolved
+                  </>
+                )}
+              </span>
             </button>
           ))}
         </div>
