@@ -35,7 +35,7 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <nav className="sticky top-0 z-50 glass-card border-b border-slate-200/60">
+    <nav className="sticky top-0 z-50 bg-white/40 backdrop-blur-xl border-b border-white/40 shadow-sm">
       <div className="w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
