@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "FoundIt - Localized Lost & Found Network",
   description: "Report lost items and find what's been found in your neighborhood. A community-powered lost and found platform with real-time geolocation.",
   keywords: "lost and found, missing items, community, geolocation, neighborhood",
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default function RootLayout({
