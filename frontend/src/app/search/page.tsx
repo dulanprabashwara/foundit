@@ -30,6 +30,19 @@ export default function SearchPage() {
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('foundit_geofence');
+    if (saved) {
+      try {
+        const geo = JSON.parse(saved);
+        setUserLocation({ latitude: geo.latitude, longitude: geo.longitude });
+      } catch (e) {}
+    } else {
+      setUserLocation({ latitude: 6.9271, longitude: 79.8612 });
+    }
+  }, []);
 
   const fetchResults = async () => {
     setLoading(true);

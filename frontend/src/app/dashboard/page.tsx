@@ -32,6 +32,7 @@ export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<'split' | 'map' | 'feed'>('split');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -58,6 +59,16 @@ export default function DashboardPage() {
     if (user) {
       fetchReports();
     }
+    const saved = localStorage.getItem('foundit_geofence');
+    if (saved) {
+      try {
+        const geo = JSON.parse(saved);
+        setUserLocation({ latitude: geo.latitude, longitude: geo.longitude });
+      } catch (e) {}
+    } else {
+      // Default to Colombo center if no geofence is set yet
+      setUserLocation({ latitude: 6.9271, longitude: 79.8612 });
+    }
   }, [user, fetchReports]);
 
   const filteredReports = reports.filter((report) => {
@@ -80,6 +91,17 @@ export default function DashboardPage() {
         // Simple Pythagorean distance for sorting nearby items
         const distA = Math.pow(a.latitude - selected.latitude, 2) + Math.pow(a.longitude - selected.longitude, 2);
         const distB = Math.pow(b.latitude - selected.latitude, 2) + Math.pow(b.longitude - selected.longitude, 2);
+        return distA - distB;
+      }
+    }
+    
+    if (userLocation) {
+      const distA = Math.pow(a.latitude - userLocation.latitude, 2) + Math.pow(a.longitude - userLocation.longitude, 2);
+      const distB = Math.pow(b.latitude - userLocation.latitude, 2) + Math.pow(b.longitude - userLocation.longitude, 2);
+      
+      // Only sort by distance if they are reasonably far apart, otherwise sort by newest
+      // 0.0001 in squared degrees is very roughly ~1km depending on latitude
+      if (Math.abs(distA - distB) > 0.0001) {
         return distA - distB;
       }
     }
