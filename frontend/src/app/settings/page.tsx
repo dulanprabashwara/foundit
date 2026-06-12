@@ -36,6 +36,12 @@ export default function ProfilePage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  
+  // Original state for reverting changes
+  const [originalFullName, setOriginalFullName] = useState('');
+  const [originalPhoneNumber, setOriginalPhoneNumber] = useState('');
+  const [originalPhotoUrl, setOriginalPhotoUrl] = useState<string | null>(null);
+
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [recentReports, setRecentReports] = useState<Report[]>([]);
@@ -57,12 +63,20 @@ export default function ProfilePage() {
       router.push('/');
     } else if (user) {
       setFullName(user.displayName || 'Jane Doe');
+      setOriginalFullName(user.displayName || 'Jane Doe');
       setEmail(user.email || 'user@example.com');
       
       // Fetch backend user data
       userApi.getMe().then(data => {
-        if (data.phone) setPhoneNumber(data.phone);
-        if (data.hasPhoto) setPhotoUrl(userApi.getImageUrl(user.uid));
+        if (data.phone) {
+          setPhoneNumber(data.phone);
+          setOriginalPhoneNumber(data.phone);
+        }
+        if (data.hasPhoto) {
+          const url = userApi.getImageUrl(user.uid);
+          setPhotoUrl(url);
+          setOriginalPhotoUrl(url);
+        }
       }).catch(err => console.error('Failed to load user profile', err));
       
       reportApi.getMyReports().then(data => {
@@ -96,6 +110,9 @@ export default function ProfilePage() {
       );
 
       alert('Profile and Notification Settings updated successfully!');
+      setOriginalFullName(fullName);
+      setOriginalPhoneNumber(phoneNumber);
+      setOriginalPhotoUrl(photoUrl);
       setIsEditingProfile(false);
     } catch (error) {
       console.error('Failed to save changes:', error);
@@ -111,6 +128,14 @@ export default function ProfilePage() {
       setPhotoFile(file);
       setPhotoUrl(URL.createObjectURL(file));
     }
+  };
+
+  const handleRemoveChanges = () => {
+    setFullName(originalFullName);
+    setPhoneNumber(originalPhoneNumber);
+    setPhotoUrl(originalPhotoUrl);
+    setPhotoFile(null);
+    setIsEditingProfile(false);
   };
 
   const handleUseMyLocation = () => {
@@ -206,7 +231,7 @@ export default function ProfilePage() {
             </div>
           </div>
           <button 
-            onClick={() => setIsEditingProfile(!isEditingProfile)}
+            onClick={() => isEditingProfile ? handleRemoveChanges() : setIsEditingProfile(true)}
             className={`flex items-center gap-2 px-5 py-2.5 font-semibold rounded-full border transition-colors text-sm whitespace-nowrap ${
               isEditingProfile 
                 ? 'bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100' 
@@ -214,7 +239,7 @@ export default function ProfilePage() {
             }`}
           >
             <Edit2 className="w-4 h-4" />
-            {isEditingProfile ? 'Cancel Edit' : 'Edit Profile'}
+            {isEditingProfile ? 'Remove Changes' : 'Edit Profile'}
           </button>
         </div>
 
