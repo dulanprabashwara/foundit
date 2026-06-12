@@ -74,9 +74,6 @@ export default function Navbar() {
 
           {/* Right side */}
           <div className="hidden md:flex items-center gap-5">
-            <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-              <Search className="w-5 h-5" />
-            </button>
             <div className="relative">
               <button
                 onClick={() => setNotificationsDropdown(!notificationsDropdown)}

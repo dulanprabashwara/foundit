@@ -46,7 +46,7 @@ router.get('/user/me', authenticate, async (req, res) => {
 // GET /api/reports - List all active reports
 router.get('/', optionalAuth, async (req, res) => {
   try {
-    const { category, status, lat, lng, radius } = req.query;
+    const { category, status, lat, lng, radius, query } = req.query;
 
     const where = {};
 
@@ -58,6 +58,10 @@ router.get('/', optionalAuth, async (req, res) => {
 
     if (category && category !== 'ALL') {
       where.category = category;
+    }
+
+    if (query) {
+      where.title = { contains: query, mode: 'insensitive' };
     }
 
     let reports = await prisma.report.findMany({

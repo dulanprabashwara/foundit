@@ -40,14 +40,15 @@ export const userApi = {
 
 // Reports API
 export const reportApi = {
-  list: (params?: { category?: string; status?: string; lat?: number; lng?: number; radius?: number }) => {
-    const query = new URLSearchParams();
-    if (params?.category) query.set('category', params.category);
-    if (params?.status) query.set('status', params.status);
-    if (params?.lat) query.set('lat', String(params.lat));
-    if (params?.lng) query.set('lng', String(params.lng));
-    if (params?.radius) query.set('radius', String(params.radius));
-    return apiRequest(`/reports?${query.toString()}`);
+  list: (params?: { category?: string; status?: string; lat?: number; lng?: number; radius?: number; query?: string }) => {
+    const urlQuery = new URLSearchParams();
+    if (params?.category) urlQuery.set('category', params.category);
+    if (params?.status) urlQuery.set('status', params.status);
+    if (params?.lat) urlQuery.set('lat', String(params.lat));
+    if (params?.lng) urlQuery.set('lng', String(params.lng));
+    if (params?.radius) urlQuery.set('radius', String(params.radius));
+    if (params?.query) urlQuery.set('query', params.query);
+    return apiRequest(`/reports?${urlQuery.toString()}`);
   },
 
   get: (id: string) => apiRequest(`/reports/${id}`),
