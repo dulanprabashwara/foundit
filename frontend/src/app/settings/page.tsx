@@ -67,11 +67,18 @@ export default function ProfilePage() {
     }
   }, []);
 
-  const handleSaveProfile = () => {
+  const handleSaveChanges = () => {
     setSavingProfile(true);
+    
+    // Save geofence settings
+    localStorage.setItem(
+      'foundit_geofence',
+      JSON.stringify({ latitude, longitude, radius })
+    );
+
     setTimeout(() => {
       setSavingProfile(false);
-      alert('Profile updated successfully!');
+      alert('Profile and Notification Settings updated successfully!');
     }, 1000);
   };
 
@@ -96,14 +103,7 @@ export default function ProfilePage() {
     );
   };
 
-  const handleSaveGeofence = () => {
-    localStorage.setItem(
-      'foundit_geofence',
-      JSON.stringify({ latitude, longitude, radius })
-    );
-    setNotificationSaved(true);
-    setTimeout(() => setNotificationSaved(false), 3000);
-  };
+
 
   const handleMapClick = useCallback((lat: number, lng: number) => {
     setLatitude(lat);
@@ -218,20 +218,10 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex justify-end">
-            <button
-              onClick={handleSaveProfile}
-              disabled={savingProfile}
-              className="px-8 py-2.5 bg-indigo-600 text-white font-semibold rounded-full hover:bg-indigo-700 transition-colors flex items-center justify-center min-w-[140px]"
-            >
-              {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
-            </button>
-          </div>
+
         </div>
 
-        {/* Notification Settings Area */}
-        <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-6">Notification Settings</h2>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Settings panel */}
           <div className="space-y-6">
@@ -331,25 +321,9 @@ export default function ProfilePage() {
             {/* Actions */}
             <div className="flex items-center gap-3">
               <button
-                onClick={handleSaveGeofence}
-                className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/25"
-              >
-                {notificationSaved ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    Saved!
-                  </>
-                ) : (
-                  <>
-                    <SettingsIcon className="w-4 h-4" />
-                    Save Settings
-                  </>
-                )}
-              </button>
-              <button
                 onClick={handleCheckNearby}
                 disabled={checking}
-                className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
+                className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
               >
                 {checking ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -438,6 +412,17 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Global Save Button */}
+        <div className="mt-8 flex justify-end">
+          <button
+            onClick={handleSaveChanges}
+            disabled={savingProfile}
+            className="px-8 py-2.5 bg-indigo-600 text-white font-semibold rounded-full hover:bg-indigo-700 transition-colors flex items-center justify-center min-w-[140px]"
+          >
+            {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
+          </button>
         </div>
       </main>
     </div>
