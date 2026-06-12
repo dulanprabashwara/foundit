@@ -36,6 +36,7 @@ export default function ProfilePage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [recentReports, setRecentReports] = useState<Report[]>([]);
   const { updateProfileData } = useAuth();
@@ -95,6 +96,7 @@ export default function ProfilePage() {
       );
 
       alert('Profile and Notification Settings updated successfully!');
+      setIsEditingProfile(false);
     } catch (error) {
       console.error('Failed to save changes:', error);
       alert('Failed to save changes. Please try again.');
@@ -170,17 +172,21 @@ export default function ProfilePage() {
         {/* Profile Header Card */}
         <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between mb-6 gap-6 md:gap-0">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-100 to-indigo-50 p-1 ring-4 ring-white shadow-md relative group cursor-pointer">
-              <input type="file" id="profile-upload" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-              <label htmlFor="profile-upload" className="w-full h-full rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-semibold overflow-hidden relative cursor-pointer">
+            <div className={`w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-100 to-indigo-50 p-1 ring-4 ring-white shadow-md relative group ${isEditingProfile ? 'cursor-pointer' : ''}`}>
+              {isEditingProfile && (
+                <input type="file" id="profile-upload" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+              )}
+              <label htmlFor={isEditingProfile ? "profile-upload" : undefined} className={`w-full h-full rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-semibold overflow-hidden relative ${isEditingProfile ? 'cursor-pointer' : ''}`}>
                 {photoUrl ? (
                   <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                   fullName.charAt(0).toUpperCase()
                 )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Upload className="w-6 h-6 text-white" />
-                </div>
+                {isEditingProfile && (
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Upload className="w-6 h-6 text-white" />
+                  </div>
+                )}
               </label>
             </div>
             <div className="mt-1">
@@ -199,9 +205,16 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-indigo-50 text-indigo-700 font-semibold rounded-full border border-indigo-100 hover:bg-indigo-100 transition-colors text-sm whitespace-nowrap">
+          <button 
+            onClick={() => setIsEditingProfile(!isEditingProfile)}
+            className={`flex items-center gap-2 px-5 py-2.5 font-semibold rounded-full border transition-colors text-sm whitespace-nowrap ${
+              isEditingProfile 
+                ? 'bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100' 
+                : 'bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100'
+            }`}
+          >
             <Edit2 className="w-4 h-4" />
-            Edit Profile
+            {isEditingProfile ? 'Cancel Edit' : 'Edit Profile'}
           </button>
         </div>
 
@@ -220,7 +233,12 @@ export default function ProfilePage() {
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
+                readOnly={!isEditingProfile}
+                className={`w-full px-4 py-3.5 border rounded-xl text-sm font-medium transition-all ${
+                  isEditingProfile 
+                    ? 'bg-slate-50 border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white' 
+                    : 'bg-white border-transparent text-slate-700 pointer-events-none'
+                }`}
               />
             </div>
             <div>
@@ -230,8 +248,8 @@ export default function ProfilePage() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
+                readOnly
+                className="w-full px-4 py-3.5 bg-white border-transparent rounded-xl text-slate-500 text-sm font-medium pointer-events-none"
               />
             </div>
           </div>
@@ -243,7 +261,12 @@ export default function ProfilePage() {
               type="tel"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
+              readOnly={!isEditingProfile}
+              className={`w-full px-4 py-3.5 border rounded-xl text-sm font-medium transition-all ${
+                isEditingProfile 
+                  ? 'bg-slate-50 border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white' 
+                  : 'bg-white border-transparent text-slate-700 pointer-events-none'
+              }`}
             />
           </div>
         </div>
