@@ -93,8 +93,8 @@ export default function SearchPage() {
               onClick={() => setActiveCategory('ALL')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${
                 activeCategory === 'ALL'
-                  ? 'bg-slate-800 text-white shadow-md'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                  ? 'bg-slate-800 text-white shadow-md border-transparent'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-black hover:text-black'
               }`}
             >
               <Filter className="w-4 h-4" />
@@ -106,8 +106,8 @@ export default function SearchPage() {
                 onClick={() => setActiveCategory(cat.value)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${
                   activeCategory === cat.value
-                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25 border-transparent'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-black hover:text-black'
                 }`}
               >
                 <img src={cat.icon} alt={cat.label} className="w-5 h-5 object-contain" />
