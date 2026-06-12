@@ -194,7 +194,7 @@ export default function ReportDetailPage() {
                     color: categoryInfo.color,
                   }}
                 >
-                  <img src={categoryInfo.icon} alt={categoryInfo.label} className="w-4 h-4 object-contain" />
+                  <div className="w-4 h-4 mask-icon" style={{ backgroundColor: categoryInfo.color, maskImage: `url(${categoryInfo.icon})`, WebkitMaskImage: `url(${categoryInfo.icon})` }} />
                   {categoryInfo.label}
                 </span>
                 <span
@@ -389,7 +389,7 @@ export default function ReportDetailPage() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-500">Category</span>
                     <span className="font-medium text-slate-700 flex items-center gap-1">
-                      <img src={categoryInfo.icon} alt={categoryInfo.label} className="w-5 h-5 object-contain" /> {categoryInfo.label}
+                      <div className="w-5 h-5 mask-icon bg-primary-600" style={{ maskImage: `url(${categoryInfo.icon})`, WebkitMaskImage: `url(${categoryInfo.icon})` }} /> {categoryInfo.label}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">

@@ -372,7 +372,7 @@ export default function ProfilePage() {
                           onClick={() => router.push(`/report/${report.id}`)}
                           className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
                         >
-                          <img src={catInfo.icon} alt={catInfo.label} className="w-6 h-6 object-contain" />
+                          <div className="w-6 h-6 mask-icon bg-primary-600" style={{ maskImage: `url(${catInfo.icon})`, WebkitMaskImage: `url(${catInfo.icon})` }} />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-slate-700 truncate">
                               {report.title}
