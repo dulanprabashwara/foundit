@@ -59,14 +59,14 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation (Centered) */}
-          <div className="hidden md:flex items-center gap-14 absolute left-1/2 -translate-x-1/2 h-full">
+          <div className="hidden md:flex items-center gap-20 absolute left-1/2 -translate-x-1/2 h-full">
             {navLinks.map((link) => {
               const active = isActive(link.href) || (link.href === '/dashboard' && pathname === '/');
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative flex items-center h-full text-sm font-medium transition-colors ${
+                  className={`relative flex items-center h-full text-base font-semibold transition-colors ${
                     active ? 'text-primary-600' : 'text-slate-500 hover:text-slate-900'
                   }`}
                 >
