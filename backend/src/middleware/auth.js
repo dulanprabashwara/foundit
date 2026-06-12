@@ -1,3 +1,4 @@
+require('../lib/firebase');
 const { getAuth } = require('firebase-admin/auth');
 
 /**

@@ -81,94 +81,89 @@ export default function DashboardPage() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-            <p className="text-sm text-slate-500 mt-1">
-              {filteredReports.length} active report{filteredReports.length !== 1 ? 's' : ''} in your area
-            </p>
-          </div>
-
-          {/* View mode toggle */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-              {([
-                { mode: 'split', icon: SlidersHorizontal, label: 'Split' },
-                { mode: 'feed', icon: LayoutList, label: 'Feed' },
-                { mode: 'map', icon: Map, label: 'Map' },
-              ] as const).map(({ mode, icon: Icon, label }) => (
-                <button
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    viewMode === mode
-                      ? 'bg-primary-50 text-primary-700 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{label}</span>
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={fetchReports}
-              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all shadow-sm"
-              title="Refresh"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
-        </div>
-
-        {/* Search & Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search reports..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all shadow-sm"
-            />
-          </div>
-
-          {/* Category filters */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            <button
-              onClick={() => setSelectedCategory('ALL')}
-              className={`flex-shrink-0 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                selectedCategory === 'ALL'
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/25'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300 shadow-sm'
-              }`}
-            >
-              All
-            </button>
-            {CATEGORIES.map((cat) => (
+        {/* Top Controls */}
+        <div className="flex items-center justify-between mb-8 max-w-4xl mx-auto">
+          {/* Feed/Map Toggle */}
+          <div className="flex items-center bg-white border border-slate-200 rounded-full p-1 shadow-sm">
+            {([
+              { mode: 'feed', icon: LayoutList, label: 'Feed' },
+              { mode: 'map', icon: Map, label: 'Map' },
+            ] as const).map(({ mode, icon: Icon, label }) => (
               <button
-                key={cat.value}
-                onClick={() => setSelectedCategory(cat.value)}
-                className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                  selectedCategory === cat.value
-                    ? 'text-white shadow-lg'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300 shadow-sm'
+                key={mode}
+                onClick={() => setViewMode(mode as any)}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                  (viewMode === mode || (viewMode === 'split' && mode === 'feed'))
+                    ? 'bg-indigo-50 text-indigo-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
-                style={
-                  selectedCategory === cat.value
-                    ? { backgroundColor: cat.color, boxShadow: `0 4px 14px ${cat.color}40` }
-                    : {}
-                }
               >
-                <span>{cat.emoji}</span>
-                {cat.label}
+                <Icon className="w-4 h-4" />
+                {label}
               </button>
             ))}
           </div>
+
+          {/* Filters Button */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-5 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-700 hover:bg-slate-50 shadow-sm transition-all"
+          >
+            <Filter className="w-4 h-4 text-slate-500" />
+            Filters
+          </button>
         </div>
+
+        {/* Filters Panel (Collapsible) */}
+        {showFilters && (
+          <div className="mb-8 p-4 bg-white border border-slate-200 rounded-2xl shadow-sm max-w-4xl mx-auto animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search reports..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                />
+              </div>
+
+              {/* Category filters */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <button
+                  onClick={() => setSelectedCategory('ALL')}
+                  className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    selectedCategory === 'ALL'
+                      ? 'bg-slate-800 text-white shadow-md'
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  All Types
+                </button>
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.value}
+                    onClick={() => setSelectedCategory(cat.value)}
+                    className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      selectedCategory === cat.value
+                        ? 'text-white shadow-md'
+                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                    }`}
+                    style={
+                      selectedCategory === cat.value
+                        ? { backgroundColor: cat.color }
+                        : {}
+                    }
+                  >
+                    <span>{cat.emoji}</span>
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Error state */}
         {error && (
@@ -220,13 +215,13 @@ export default function DashboardPage() {
           >
             {/* Feed */}
             {(viewMode === 'split' || viewMode === 'feed') && (
-              <div className={viewMode === 'split' ? 'order-1' : ''}>
+              <div className="max-w-4xl mx-auto w-full">
                 <div
-                  className={`grid gap-4 ${
-                    viewMode === 'feed'
-                      ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                  className={`grid gap-6 ${
+                    viewMode === 'feed' || viewMode === 'split'
+                      ? 'grid-cols-1 md:grid-cols-2'
                       : 'grid-cols-1'
-                  } ${viewMode === 'split' ? 'max-h-[calc(100vh-220px)] overflow-y-auto pr-2' : ''}`}
+                  }`}
                 >
                   {filteredReports.map((report, i) => (
                     <ReportCard key={report.id} report={report} index={i} />
@@ -257,6 +252,17 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Floating Action Button */}
+      <button
+        onClick={() => router.push('/report/new')}
+        className="fixed bottom-8 right-8 w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/30 hover:bg-indigo-700 hover:scale-105 transition-all z-40"
+        title="Report an item"
+      >
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
     </div>
   );
 }

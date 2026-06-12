@@ -24,10 +24,10 @@ export default function Navbar() {
   const [profileDropdown, setProfileDropdown] = useState(false);
 
   const navLinks = [
-    { href: '/dashboard', label: 'Dashboard', icon: MapPin },
-    { href: '/report/new', label: 'Report Item', icon: Plus },
-    { href: '/my-reports', label: 'My Reports', icon: User },
-    { href: '/settings', label: 'Settings', icon: Settings },
+    { href: '/dashboard', label: 'Home' },
+    { href: '/search', label: 'Search' },
+    { href: '/my-reports', label: 'My Reports' },
+    { href: '/settings', label: 'Profile' },
   ];
 
   const isActive = (href: string) => pathname === href;
@@ -49,90 +49,68 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Desktop Navigation (Centered) */}
+          <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2 h-full">
             {navLinks.map((link) => {
-              const Icon = link.icon;
-              const active = isActive(link.href);
+              const active = isActive(link.href) || (link.href === '/dashboard' && pathname === '/');
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    active
-                      ? 'bg-primary-50 text-primary-700 shadow-sm'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  className={`relative flex items-center h-full text-sm font-medium transition-colors ${
+                    active ? 'text-primary-600' : 'text-slate-500 hover:text-slate-900'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
                   {link.label}
+                  {active && (
+                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary-600 rounded-t-full" />
+                  )}
                 </Link>
               );
             })}
           </div>
 
           {/* Right side */}
-          <div className="hidden md:flex items-center gap-3">
-            {/* Notification bell */}
+          <div className="hidden md:flex items-center gap-4">
+            <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+              <Search className="w-5 h-5" />
+            </button>
             <Link
               href="/settings"
-              className="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+              className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors"
             >
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full" />
+              <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full ring-2 ring-white" />
             </Link>
 
-            {/* Profile dropdown */}
-            <div className="relative">
+            <div className="relative ml-2">
               <button
                 onClick={() => setProfileDropdown(!profileDropdown)}
-                className="flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+                className="flex items-center"
               >
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-sm font-semibold">
+                <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white text-xs font-medium border-2 border-white shadow-sm overflow-hidden">
                   {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                 </div>
-                <span className="text-sm font-medium text-slate-700 max-w-[120px] truncate">
-                  {user?.displayName || user?.email?.split('@')[0]}
-                </span>
-                <ChevronDown className="w-4 h-4 text-slate-400" />
               </button>
 
               {profileDropdown && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setProfileDropdown(false)} />
-                  <div className="absolute right-0 mt-2 w-56 py-2 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 animate-fade-in-up">
-                    <div className="px-4 py-3 border-b border-slate-100">
-                      <p className="text-sm font-semibold text-slate-800">{user?.displayName}</p>
+                  <div className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-xl shadow-xl border border-slate-100 z-50">
+                    <div className="px-4 py-2 border-b border-slate-50 mb-1">
+                      <p className="text-sm font-semibold text-slate-800 truncate">{user?.displayName || 'User'}</p>
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                     </div>
-                    <Link
-                      href="/my-reports"
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                      onClick={() => setProfileDropdown(false)}
+                    <button
+                      onClick={() => {
+                        setProfileDropdown(false);
+                        signOut();
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
                     >
-                      <User className="w-4 h-4 text-slate-400" />
-                      My Reports
-                    </Link>
-                    <Link
-                      href="/settings"
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                      onClick={() => setProfileDropdown(false)}
-                    >
-                      <Settings className="w-4 h-4 text-slate-400" />
-                      Notification Settings
-                    </Link>
-                    <div className="border-t border-slate-100 mt-1 pt-1">
-                      <button
-                        onClick={() => {
-                          setProfileDropdown(false);
-                          signOut();
-                        }}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Sign Out
-                      </button>
-                    </div>
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
                   </div>
                 </>
               )}
@@ -154,20 +132,18 @@ export default function Navbar() {
         <div className="md:hidden border-t border-slate-200 bg-white animate-fade-in">
           <div className="px-4 py-3 space-y-1">
             {navLinks.map((link) => {
-              const Icon = link.icon;
-              const active = isActive(link.href);
+              const active = isActive(link.href) || (link.href === '/dashboard' && pathname === '/');
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                  className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                     active
-                      ? 'bg-primary-50 text-primary-700'
+                      ? 'bg-indigo-50 text-indigo-700'
                       : 'text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
                   {link.label}
                 </Link>
               );
