@@ -24,13 +24,14 @@ router.post('/sync', authenticate, async (req, res) => {
 
     const defaultName = email ? email.split('@')[0] : 'Unknown User';
     const finalName = req.body.name || name || defaultName;
+    const finalEmail = email || `user-${uid}@foundit.local`;
 
     const user = await prisma.user.upsert({
       where: { id: uid },
-      update: { email, name: finalName },
+      update: { email: finalEmail, name: finalName },
       create: {
         id: uid,
-        email,
+        email: finalEmail,
         name: finalName,
       },
     });
@@ -81,7 +82,7 @@ router.patch('/me', authenticate, upload.single('image'), async (req, res) => {
       update: updateData,
       create: {
         id: req.user.uid,
-        email: req.user.email,
+        email: req.user.email || `user-${req.user.uid}@foundit.local`,
         name: name || req.user.name || (req.user.email ? req.user.email.split('@')[0] : 'Unknown User'),
         phone: phone || null,
         photoData: req.file ? req.file.buffer : null,
@@ -92,7 +93,7 @@ router.patch('/me', authenticate, upload.single('image'), async (req, res) => {
     res.json({ ...rest, hasPhoto: !!photoData });
   } catch (error) {
     console.error('Update user error:', error);
-    res.status(500).json({ error: 'Failed to update user' });
+    res.status(500).json({ error: `Failed to update user: ${error.message}` });
   }
 });
 
