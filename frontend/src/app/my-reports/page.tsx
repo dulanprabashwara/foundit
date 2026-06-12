@@ -21,7 +21,6 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import Link from 'next/link';
-import MapView from '@/components/MapView';
 
 export default function MyReportsPage() {
   const { user, loading: authLoading } = useAuth();
@@ -31,7 +30,6 @@ export default function MyReportsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'RESOLVED'>('ALL');
-  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -84,13 +82,6 @@ export default function MyReportsPage() {
       ? reports
       : reports.filter((r) => r.status === statusFilter);
 
-  // Sort so selected report is at the top
-  const sortedReports = [...filteredReports].sort((a, b) => {
-    if (a.id === selectedReportId) return -1;
-    if (b.id === selectedReportId) return 1;
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
-
   const activeCount = reports.filter((r) => r.status === 'ACTIVE').length;
   const resolvedCount = reports.filter((r) => r.status === 'RESOLVED').length;
 
@@ -103,10 +94,10 @@ export default function MyReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
 
-      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 py-6 h-[calc(100vh-64px)] flex flex-col">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
@@ -186,15 +177,15 @@ export default function MyReportsPage() {
           </div>
         )}
 
-        {/* Layout */}
+        {/* Reports list */}
         {loading ? (
-          <div className="flex-1 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
           </div>
         ) : filteredReports.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-20 animate-fade-in">
-            <div className="w-20 h-20 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4">
-              <MapPin className="w-10 h-10 text-indigo-300" />
+          <div className="flex flex-col items-center justify-center py-20 animate-fade-in">
+            <div className="w-20 h-20 rounded-2xl bg-primary-50 flex items-center justify-center mb-4">
+              <MapPin className="w-10 h-10 text-primary-300" />
             </div>
             <h3 className="text-lg font-semibold text-slate-700 mb-2">
               {statusFilter === 'ALL'
@@ -209,7 +200,7 @@ export default function MyReportsPage() {
             {statusFilter === 'ALL' && (
               <Link
                 href="/report/new"
-                className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/25"
+                className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/25"
               >
                 <Plus className="w-4 h-4" />
                 Create Report
@@ -217,131 +208,106 @@ export default function MyReportsPage() {
             )}
           </div>
         ) : (
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6 min-h-0">
-            {/* List View Sidebar */}
-            <div className="overflow-y-auto pr-2 custom-scrollbar space-y-4">
-              {sortedReports.map((report) => {
-                const categoryInfo = getCategoryInfo(report.category);
-                const isResolved = report.status === 'RESOLVED';
-                const timeAgo = new Date(report.createdAt).toLocaleDateString();
+          <div className="space-y-3">
+            {filteredReports.map((report, index) => {
+              const categoryInfo = getCategoryInfo(report.category);
+              const isResolved = report.status === 'RESOLVED';
 
-                return (
-                  <div
-                    key={report.id}
-                    onClick={() => setSelectedReportId(report.id)}
-                    className={`block relative overflow-hidden rounded-2xl border transition-all duration-300 cursor-pointer ${
-                      isResolved
-                        ? 'bg-slate-50 border-slate-200 opacity-60'
-                        : 'bg-white border-slate-200 hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-500/5'
-                    } ${report.id === selectedReportId ? 'ring-2 ring-indigo-500 scale-[1.02]' : 'hover:scale-[1.01]'}`}
-                  >
-                    {/* Top Badges */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/90 backdrop-blur-sm text-slate-800 rounded-full text-[10px] font-bold shadow-sm">
-                        <MapPin className="w-3 h-3 text-rose-500" />
-                        My Report
-                      </div>
-                      <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm ${
-                        isResolved 
-                          ? 'bg-emerald-100 text-emerald-700' 
-                          : 'bg-amber-100 text-amber-700'
-                      }`}>
-                        {isResolved ? 'RESOLVED' : 'ACTIVE'}
-                      </div>
-                    </div>
-
-                    {/* Image */}
+              return (
+                <div
+                  key={report.id}
+                  className={`bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-all animate-fade-in-up ${
+                    isResolved ? 'opacity-60' : ''
+                  }`}
+                  style={{ animationDelay: `${index * 0.05}s`, opacity: 0 }}
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Thumbnail */}
                     {report.hasImage ? (
-                      <div className="relative h-48 overflow-hidden bg-slate-100">
+                      <div className="flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-slate-100">
                         <img
                           src={reportApi.getImageUrl(report.id)}
                           alt={report.title}
-                          className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${
-                            isResolved ? 'grayscale opacity-80' : ''
-                          }`}
-                          loading="lazy"
+                          className={`w-full h-full object-cover ${isResolved ? 'grayscale' : ''}`}
                         />
                       </div>
                     ) : (
-                      <div className={`h-48 flex items-center justify-center bg-indigo-50/50`}>
-                        <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
-                          <span className="text-2xl text-indigo-400 opacity-50">📷</span>
-                        </div>
+                      <div
+                        className="flex-shrink-0 w-16 h-16 rounded-xl flex items-center justify-center"
+                        style={{ backgroundColor: `${categoryInfo.color}15` }}
+                      >
+                        <span className="text-2xl">{categoryInfo.emoji}</span>
                       </div>
                     )}
 
                     {/* Content */}
-                    <div className="p-5">
-                      <h3 className={`font-bold text-lg mb-2 line-clamp-1 ${
-                        isResolved ? 'text-slate-500' : 'text-slate-800'
-                      } transition-colors`}>
-                        {report.title}
-                      </h3>
-                      <p className="text-sm text-slate-500 line-clamp-2 mb-4 leading-relaxed">
-                        {report.description}
-                      </p>
-
-                      <div className="flex items-center gap-2 mb-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700">
-                          <span>{categoryInfo.emoji}</span>
-                          {categoryInfo.label}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                          style={{
+                            backgroundColor: `${categoryInfo.color}15`,
+                            color: categoryInfo.color,
+                          }}
+                        >
+                          {categoryInfo.emoji} {categoryInfo.label}
                         </span>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-600">
-                          <Clock className="w-3.5 h-3.5" />
-                          {timeAgo}
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                            isResolved
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-amber-100 text-amber-700'
+                          }`}
+                        >
+                          {isResolved ? '✅ Resolved' : '🟡 Active'}
                         </span>
                       </div>
-
-                      <div className="h-px w-full bg-slate-100 mb-4" />
-
-                      {/* Actions Footer */}
-                      <div className="flex items-center justify-between">
-                        <Link
-                          href={`/report/${report.id}`}
-                          className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          View Details
-                          <Eye className="w-3 h-3 ml-1" />
-                        </Link>
-                        
-                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={() => handleToggleStatus(report.id, report.status)}
-                            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                              isResolved
-                                ? 'text-slate-500 bg-slate-100 hover:bg-slate-200'
-                                : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
-                            }`}
-                          >
-                            {isResolved ? <RotateCcw className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
-                            {isResolved ? 'Reopen' : 'Resolve'}
-                          </button>
-                          <button
-                            onClick={() => handleDelete(report.id)}
-                            className="p-1.5 rounded-lg text-rose-500 bg-rose-50 hover:bg-rose-100 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                      <h3 className="text-sm font-semibold text-slate-800 truncate">{report.title}</h3>
+                      <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{report.description}</p>
+                      <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(report.createdAt).toLocaleDateString()}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageSquare className="w-3 h-3" />
+                          {report._count?.comments || 0} comments
+                        </span>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
 
-            {/* Map View */}
-            <div className="hidden lg:block h-full min-h-[400px]">
-              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-full w-full">
-                <MapView
-                  reports={sortedReports}
-                  selectedReportId={selectedReportId}
-                  onReportSelect={(id) => setSelectedReportId(id)}
-                  className="w-full h-full"
-                />
-              </div>
-            </div>
+                    {/* Actions */}
+                    <div className="flex-shrink-0 flex items-center gap-1.5">
+                      <Link
+                        href={`/report/${report.id}`}
+                        className="p-2 rounded-lg text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                        title="View"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => handleToggleStatus(report.id, report.status)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          isResolved
+                            ? 'text-slate-400 hover:text-amber-600 hover:bg-amber-50'
+                            : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'
+                        }`}
+                        title={isResolved ? 'Reopen' : 'Mark Resolved'}
+                      >
+                        {isResolved ? <RotateCcw className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(report.id)}
+                        className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </main>

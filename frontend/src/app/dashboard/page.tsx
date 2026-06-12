@@ -69,10 +69,21 @@ export default function DashboardPage() {
     );
   });
 
-  // Sort so selected report is at the top
+  // Sort so selected report is at the top, and others are sorted by distance if a report is selected
   const sortedReports = [...filteredReports].sort((a, b) => {
     if (a.id === selectedReportId) return -1;
     if (b.id === selectedReportId) return 1;
+    
+    if (selectedReportId) {
+      const selected = reports.find(r => r.id === selectedReportId);
+      if (selected) {
+        // Simple Pythagorean distance for sorting nearby items
+        const distA = Math.pow(a.latitude - selected.latitude, 2) + Math.pow(a.longitude - selected.longitude, 2);
+        const distB = Math.pow(b.latitude - selected.latitude, 2) + Math.pow(b.longitude - selected.longitude, 2);
+        return distA - distB;
+      }
+    }
+    
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
@@ -215,7 +226,7 @@ export default function DashboardPage() {
           <div
             className={`${
               viewMode === 'split'
-                ? 'grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6 max-w-none'
+                ? 'grid grid-cols-1 lg:grid-cols-2 gap-8'
                 : viewMode === 'map'
                 ? ''
                 : ''
@@ -228,7 +239,7 @@ export default function DashboardPage() {
                   className={`grid gap-4 ${
                     viewMode === 'feed'
                       ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                      : 'grid-cols-1'
+                      : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2'
                   }`}
                 >
                   {sortedReports.map((report, i) => (
