@@ -322,7 +322,7 @@ export default function NewReportPage() {
                             : 'border-slate-200 hover:border-slate-300 bg-white'
                         }`}
                       >
-                        <span className="text-2xl">{cat.emoji}</span>
+                        <img src={cat.icon} alt={cat.label} className="w-8 h-8 object-contain" />
                         <span
                           className={`text-xs font-medium ${
                             category === cat.value ? 'text-primary-700' : 'text-slate-600'

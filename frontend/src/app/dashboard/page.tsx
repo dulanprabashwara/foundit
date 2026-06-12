@@ -175,7 +175,7 @@ export default function DashboardPage() {
                         : {}
                     }
                   >
-                    <span>{cat.emoji}</span>
+                    <img src={cat.icon} alt={cat.label} className="w-5 h-5 object-contain" />
                     {cat.label}
                   </button>
                 ))}

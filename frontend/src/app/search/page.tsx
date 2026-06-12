@@ -110,7 +110,7 @@ export default function SearchPage() {
                     : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300'
                 }`}
               >
-                <span className="text-base">{cat.emoji}</span>
+                <img src={cat.icon} alt={cat.label} className="w-5 h-5 object-contain" />
                 {cat.label}
               </button>
             ))}
@@ -152,11 +152,11 @@ export default function SearchPage() {
                         />
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 group-hover:scale-105 transition-transform duration-500">
-                          <span className="text-6xl mb-2">{catInfo.emoji}</span>
+                          <img src={catInfo.icon} alt={catInfo.label} className="w-16 h-16 object-contain mb-2 opacity-50" />
                         </div>
                       )}
                       <div className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-slate-700 shadow-sm flex items-center gap-1.5">
-                        <span className="text-sm">{catInfo.emoji}</span>
+                        <img src={catInfo.icon} alt={catInfo.label} className="w-4 h-4 object-contain" />
                         {catInfo.label}
                       </div>
                       {report.status === 'RESOLVED' && (

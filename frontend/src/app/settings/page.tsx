@@ -372,7 +372,7 @@ export default function ProfilePage() {
                           onClick={() => router.push(`/report/${report.id}`)}
                           className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
                         >
-                          <span className="text-xl">{catInfo.emoji}</span>
+                          <img src={catInfo.icon} alt={catInfo.label} className="w-6 h-6 object-contain" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-slate-700 truncate">
                               {report.title}

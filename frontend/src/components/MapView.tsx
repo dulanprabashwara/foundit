@@ -194,7 +194,7 @@ export default function MapView({
           ">
             ${imageUrl 
               ? `<img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" />`
-              : `<span style="font-size: 20px;">${getCategoryInfo(report.category).emoji}</span>`
+              : `<img src="${getCategoryInfo(report.category).icon}" style="width: 24px; height: 24px; object-fit: contain;" />`
             }
           </div>
           <div style="
