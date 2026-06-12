@@ -18,7 +18,10 @@ import {
   AlertCircle,
   CheckCircle2,
   Navigation,
-  Info 
+  Info,
+  Edit2,
+  Clock,
+  Camera
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -136,94 +139,90 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8">
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">User Profile</h1>
-
-        <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm mb-8">
-          {/* Header */}
-          <div className="flex items-center gap-5 mb-8">
-            <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-semibold shadow-md">
-              {fullName.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">{fullName}</h2>
-              <p className="text-sm text-slate-500 mt-1">Seattle, WA</p>
-            </div>
-          </div>
-
-          <div className="h-px w-full bg-slate-100 mb-8" />
-
-          {/* Personal Information */}
-          <div className="mb-8">
-            <h3 className="text-lg font-bold text-slate-900 mb-6">Personal Information</h3>
-            
-            <div className="space-y-5">
-              <div className="relative">
-                <label className="absolute -top-2 left-3 bg-white px-1 text-xs font-medium text-slate-500">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                />
+      <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 pb-16">
+        
+        {/* Profile Header Card */}
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between mb-6 gap-6 md:gap-0">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-100 to-indigo-50 p-1 ring-4 ring-white shadow-md relative">
+              <div className="w-full h-full rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-semibold overflow-hidden">
+                {fullName.charAt(0).toUpperCase()}
               </div>
-
-              <div className="relative">
-                <label className="absolute -top-2 left-3 bg-white px-1 text-xs font-medium text-slate-500">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                />
+            </div>
+            <div className="mt-1">
+              <h1 className="text-3xl font-bold text-slate-900">{fullName}</h1>
+              <div className="flex items-center justify-center md:justify-start gap-1.5 text-slate-500 mt-2 mb-4">
+                <MapPin className="w-4 h-4" />
+                <span className="text-sm font-medium">Seattle, WA</span>
               </div>
-
-              <div className="relative">
-                <label className="absolute -top-2 left-3 bg-white px-1 text-xs font-medium text-slate-500">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                />
+              <div className="flex items-center justify-center md:justify-start gap-2">
+                <span className="px-3 py-1 bg-teal-100 text-teal-700 text-xs font-bold rounded-full">
+                  Verified User
+                </span>
+                <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full">
+                  Member since 2023
+                </span>
               </div>
             </div>
           </div>
-
-          <div className="h-px w-full bg-slate-100 mb-8" />
-
-          {/* Recent Activity */}
-          <div className="mb-10">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Recent Activity</h3>
-            <div className="space-y-3">
-              {recentReports.length > 0 ? (
-                recentReports.map((report, i) => (
-                  <p key={report.id} className="text-sm text-slate-700">
-                    Reported "{report.title}" • <span className="text-slate-500">{i === 0 ? '1 hr ago' : '5 hrs ago'}</span>
-                  </p>
-                ))
-              ) : (
-                <>
-                  <p className="text-sm text-slate-700">Reported "Lost Keys" • <span className="text-slate-500">1 hr ago</span></p>
-                  <p className="text-sm text-slate-700">Found "Golden Retriever" • <span className="text-slate-500">1 hrs ago</span></p>
-                </>
-              )}
-              <p className="text-sm text-slate-700">Updated profile photo • <span className="text-slate-500">17 hours ago</span></p>
-            </div>
-          </div>
-
-
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-indigo-50 text-indigo-700 font-semibold rounded-full border border-indigo-100 hover:bg-indigo-100 transition-colors text-sm whitespace-nowrap">
+            <Edit2 className="w-4 h-4" />
+            Edit Profile
+          </button>
         </div>
 
+        {/* Personal Information Card */}
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm mb-6">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 mb-8">
+            <User className="w-5 h-5 text-indigo-600" />
+            Personal Information
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
+            />
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Settings panel */}
+        {/* Notification Settings Wrapper */}
+        <div className="mb-6">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 mb-4 px-2">
+            <Bell className="w-5 h-5 text-indigo-600" />
+            Notification Settings
+          </h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Settings panel */}
           <div className="space-y-6">
             {/* Info card */}
             <div className="bg-primary-50 rounded-2xl border border-primary-200 p-4">
@@ -414,14 +413,51 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Recent Activity Card */}
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm mb-12 mt-6">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900">
+              <Clock className="w-5 h-5 text-indigo-600" />
+              Recent Activity
+            </h2>
+            <button className="text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+              View All
+            </button>
+          </div>
+          
+          <div className="relative pl-6 border-l-2 border-slate-100 space-y-8 ml-2">
+            <div className="relative">
+              <div className="absolute -left-[35px] top-0 w-7 h-7 rounded-full bg-rose-100 flex items-center justify-center border-4 border-white shadow-sm">
+                <AlertCircle className="w-3 h-3 text-rose-500" strokeWidth={3} />
+              </div>
+              <p className="text-sm font-bold text-slate-900">Reported "Lost Keys"</p>
+              <p className="text-xs text-slate-500 mt-1 font-medium">Northgate Mall area • 1 hr ago</p>
+            </div>
+            <div className="relative">
+              <div className="absolute -left-[35px] top-0 w-7 h-7 rounded-full bg-teal-100 flex items-center justify-center border-4 border-white shadow-sm">
+                <MapPin className="w-3 h-3 text-teal-600" strokeWidth={3} />
+              </div>
+              <p className="text-sm font-bold text-slate-900">Found "Golden Retriever"</p>
+              <p className="text-xs text-slate-500 mt-1 font-medium">Green Lake Park • 4 hrs ago</p>
+            </div>
+            <div className="relative">
+              <div className="absolute -left-[35px] top-0 w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center border-4 border-white shadow-sm">
+                <Camera className="w-3 h-3 text-slate-500" strokeWidth={3} />
+              </div>
+              <p className="text-sm font-bold text-slate-900">Updated profile photo</p>
+              <p className="text-xs text-slate-500 mt-1 font-medium">17 hours ago</p>
+            </div>
+          </div>
+        </div>
+
         {/* Global Save Button */}
-        <div className="mt-8 flex justify-end">
+        <div className="flex justify-center">
           <button
             onClick={handleSaveChanges}
             disabled={savingProfile}
-            className="px-8 py-2.5 bg-indigo-600 text-white font-semibold rounded-full hover:bg-indigo-700 transition-colors flex items-center justify-center min-w-[140px]"
+            className="w-full max-w-sm py-4 bg-indigo-600 text-white font-bold rounded-full hover:bg-indigo-700 transition-all flex items-center justify-center shadow-lg shadow-indigo-500/30 disabled:opacity-70"
           >
-            {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
+            {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save All Changes'}
           </button>
         </div>
       </main>
