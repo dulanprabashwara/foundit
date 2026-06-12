@@ -178,10 +178,14 @@ export default function Navbar() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setProfileDropdown(false)} />
                   <div className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-xl shadow-xl border border-slate-100 z-50">
-                    <div className="px-4 py-2 border-b border-slate-50 mb-1">
+                    <Link 
+                      href="/settings" 
+                      onClick={() => setProfileDropdown(false)}
+                      className="block px-4 py-3 border-b border-slate-50 mb-1 hover:bg-slate-50 transition-colors cursor-pointer"
+                    >
                       <p className="text-sm font-semibold text-slate-800 truncate">{user?.displayName || 'User'}</p>
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-                    </div>
+                    </Link>
                     <button
                       onClick={() => {
                         setProfileDropdown(false);
