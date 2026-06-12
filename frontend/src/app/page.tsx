@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { MapPin, Mail, Lock, User, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
+import { MapPin, Mail, Lock, User, Eye, EyeOff, ArrowRight, Sparkles, Search } from 'lucide-react';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -61,7 +61,9 @@ export default function AuthPage() {
 
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
           <div className="flex items-center gap-3 mb-8">
-            <img src="/logo.png" alt="FoundIt Logo" className="w-16 h-16 object-contain rounded-full shadow-lg" />
+            <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
+              <Search className="w-7 h-7" strokeWidth={2.5} />
+            </div>
             <h1 className="text-3xl font-bold">FoundIt</h1>
           </div>
 
@@ -100,7 +102,9 @@ export default function AuthPage() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2.5 mb-8">
-            <img src="/logo.png" alt="FoundIt Logo" className="w-12 h-12 object-contain rounded-full shadow-md" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25">
+              <Search className="w-5 h-5 text-white" strokeWidth={2.5} />
+            </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">
               FoundIt
             </span>
