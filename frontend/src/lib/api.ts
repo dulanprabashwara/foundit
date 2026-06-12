@@ -75,6 +75,12 @@ export const reportApi = {
       body: JSON.stringify({ status }),
     }),
 
+  update: (id: string, formData: FormData) =>
+    apiRequest(`/reports/${id}`, {
+      method: 'PATCH',
+      body: formData,
+    }),
+
   delete: (id: string) =>
     apiRequest(`/reports/${id}`, { method: 'DELETE' }),
 

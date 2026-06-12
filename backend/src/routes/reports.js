@@ -242,6 +242,57 @@ router.patch('/:id/status', authenticate, async (req, res) => {
   }
 });
 
+// PATCH /api/reports/:id - Edit a report (owner only)
+router.patch('/:id', authenticate, upload.single('image'), async (req, res) => {
+  try {
+    const { title, description, category, latitude, longitude } = req.body;
+
+    // Verify ownership
+    const existing = await prisma.report.findUnique({
+      where: { id: req.params.id },
+      select: { authorId: true },
+    });
+
+    if (!existing) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    if (existing.authorId !== req.user.uid) {
+      return res.status(403).json({ error: 'Only the report creator can edit' });
+    }
+
+    const validCategories = ['PETS', 'ELECTRONICS', 'KEYS', 'WALLET', 'BAG', 'OTHER'];
+    
+    const updateData = {};
+    if (title) updateData.title = title;
+    if (description) updateData.description = description;
+    if (category && validCategories.includes(category)) updateData.category = category;
+    if (latitude) updateData.latitude = parseFloat(latitude);
+    if (longitude) updateData.longitude = parseFloat(longitude);
+    if (req.file) updateData.imageData = req.file.buffer;
+
+    const report = await prisma.report.update({
+      where: { id: req.params.id },
+      data: updateData,
+      include: {
+        author: { select: { id: true, name: true, email: true } },
+        comments: {
+          include: {
+            author: { select: { id: true, name: true } },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+
+    const { imageData, ...rest } = report;
+    res.json({ ...rest, hasImage: !!imageData });
+  } catch (error) {
+    console.error('Edit report error:', error);
+    res.status(500).json({ error: 'Failed to edit report' });
+  }
+});
+
 // DELETE /api/reports/:id - Delete a report
 router.delete('/:id', authenticate, async (req, res) => {
   try {

@@ -6,7 +6,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import MapView from '@/components/MapView';
 import { reportApi, commentApi } from '@/lib/api';
-import { Report, Comment, getCategoryInfo } from '@/lib/types';
+import { Report, Comment, getCategoryInfo, CATEGORIES, Category } from '@/lib/types';
 import {
   ArrowLeft,
   MapPin,
@@ -20,6 +20,10 @@ import {
   RotateCcw,
   User,
   Share2,
+  Edit2,
+  X,
+  Save,
+  Upload,
 } from 'lucide-react';
 
 export default function ReportDetailPage() {
@@ -35,6 +39,16 @@ export default function ReportDetailPage() {
   const [commentLoading, setCommentLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Edit state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editCategory, setEditCategory] = useState<Category | ''>('');
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const [editPosition, setEditPosition] = useState<[number, number] | null>(null);
+  const [editSaving, setEditSaving] = useState(false);
   const [locationName, setLocationName] = useState<string>('Loading location...');
 
   useEffect(() => {
@@ -120,6 +134,66 @@ export default function ReportDetailPage() {
       setError(err.message || 'Failed to update status');
     } finally {
       setStatusLoading(false);
+    }
+  };
+
+  const startEditing = () => {
+    if (!report) return;
+    setEditTitle(report.title);
+    setEditDescription(report.description);
+    setEditCategory(report.category);
+    setEditPosition([report.latitude, report.longitude]);
+    setEditImageFile(null);
+    setEditImagePreview(null);
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditImageFile(null);
+    setEditImagePreview(null);
+  };
+
+  const handleEditImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image must be less than 5MB');
+      return;
+    }
+    setEditImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setEditImagePreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!report || !editTitle.trim() || !editDescription.trim() || !editCategory) return;
+    setEditSaving(true);
+    setError('');
+    try {
+      const formData = new FormData();
+      formData.append('title', editTitle.trim());
+      formData.append('description', editDescription.trim());
+      formData.append('category', editCategory);
+      if (editPosition) {
+        formData.append('latitude', String(editPosition[0]));
+        formData.append('longitude', String(editPosition[1]));
+      } else {
+        formData.append('latitude', String(report.latitude));
+        formData.append('longitude', String(report.longitude));
+      }
+      if (editImageFile) {
+        formData.append('image', editImageFile);
+      }
+      const updated = await reportApi.update(reportId, formData);
+      setReport({ ...report, ...updated });
+      setComments(updated.comments || comments);
+      setIsEditing(false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to save changes');
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -241,66 +315,164 @@ export default function ReportDetailPage() {
                 </span>
               </div>
 
-              <h1 className="text-2xl font-bold text-slate-800 mb-3">{report.title}</h1>
+              {isEditing ? (
+                /* ---- EDIT MODE ---- */
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Title</label>
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      maxLength={120}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                    />
+                  </div>
 
-              <p className="text-slate-600 leading-relaxed mb-6">{report.description}</p>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
+                    <textarea
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none"
+                    />
+                  </div>
 
-              {/* Meta */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                <span className="flex items-center gap-1.5">
-                  <User className="w-4 h-4" />
-                  {report.author.name}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" />
-                  {new Date(report.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4" />
-                  {locationName}
-                </span>
-              </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                      {CATEGORIES.map((cat) => (
+                        <button
+                          key={cat.value}
+                          type="button"
+                          onClick={() => setEditCategory(cat.value)}
+                          className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200 ${
+                            editCategory === cat.value
+                              ? 'border-primary-500 bg-primary-50 shadow-sm'
+                              : 'border-slate-200 hover:border-slate-300 bg-white'
+                          }`}
+                        >
+                          <img src={cat.icon} alt={cat.label} className="w-7 h-7 object-contain" />
+                          <span className={`text-xs font-medium ${editCategory === cat.value ? 'text-primary-700' : 'text-slate-600'}`}>
+                            {cat.label}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              {/* Owner actions */}
-              {isOwner && (
-                <div className="flex items-center gap-3 mt-6 pt-6 border-t border-slate-100">
-                  <button
-                    onClick={handleToggleStatus}
-                    disabled={statusLoading}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                      isResolved
-                        ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-                        : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                    }`}
-                  >
-                    {statusLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : isResolved ? (
-                      <>
-                        <RotateCcw className="w-4 h-4" />
-                        Reopen
-                      </>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Replace Image (optional)</label>
+                    {editImagePreview ? (
+                      <div className="relative rounded-xl overflow-hidden bg-slate-100">
+                        <img src={editImagePreview} alt="New" className="w-full max-h-48 object-cover" />
+                        <button
+                          onClick={() => { setEditImageFile(null); setEditImagePreview(null); }}
+                          className="absolute top-2 right-2 w-7 h-7 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     ) : (
-                      <>
-                        <CheckCircle2 className="w-4 h-4" />
-                        Mark Resolved
-                      </>
+                      <label className="flex items-center gap-3 px-4 py-3 border border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-primary-400 hover:bg-primary-50/50 transition-all">
+                        <Upload className="w-5 h-5 text-slate-400" />
+                        <span className="text-sm text-slate-500">Click to upload a new image</span>
+                        <input type="file" accept="image/*" className="hidden" onChange={handleEditImageSelect} />
+                      </label>
                     )}
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                  </button>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-2">
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={editSaving || !editTitle.trim() || !editDescription.trim()}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-500/25"
+                    >
+                      {editSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={cancelEditing}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-200 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                      Cancel
+                    </button>
+                  </div>
                 </div>
+              ) : (
+                /* ---- VIEW MODE ---- */
+                <>
+                  <h1 className="text-2xl font-bold text-slate-800 mb-3">{report.title}</h1>
+
+                  <p className="text-slate-600 leading-relaxed mb-6">{report.description}</p>
+
+                  {/* Meta */}
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                    <span className="flex items-center gap-1.5">
+                      <User className="w-4 h-4" />
+                      {report.author.name}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4" />
+                      {new Date(report.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4" />
+                      {locationName}
+                    </span>
+                  </div>
+
+                  {/* Owner actions */}
+                  {isOwner && (
+                    <div className="flex items-center gap-3 mt-6 pt-6 border-t border-slate-100">
+                      <button
+                        onClick={startEditing}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={handleToggleStatus}
+                        disabled={statusLoading}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                          isResolved
+                            ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                            : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                        }`}
+                      >
+                        {statusLoading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : isResolved ? (
+                          <>
+                            <RotateCcw className="w-4 h-4" />
+                            Reopen
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle2 className="w-4 h-4" />
+                            Mark Resolved
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={handleDelete}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
@@ -389,18 +561,25 @@ export default function ReportDetailPage() {
             <div className="sticky top-24 space-y-4">
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                 <div className="p-4 border-b border-slate-100">
-                  <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-primary-500" />
-                    Location
+                  <h3 className="text-sm font-semibold text-slate-700 flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-primary-500" />
+                      Location
+                    </span>
+                    {isEditing && (
+                      <span className="text-xs font-normal text-slate-400">Click map to move</span>
+                    )}
                   </h3>
                 </div>
                 <div style={{ height: '250px' }}>
                   <MapView
-                    reports={[report]}
-                    center={[report.latitude, report.longitude]}
+                    reports={isEditing && editPosition ? [] : [report]}
+                    center={isEditing && editPosition ? editPosition : [report.latitude, report.longitude]}
                     zoom={15}
                     className="w-full h-full"
-                    interactive={false}
+                    interactive={isEditing}
+                    onMapClick={isEditing ? (lat, lng) => setEditPosition([lat, lng]) : undefined}
+                    selectedPosition={isEditing ? editPosition : null}
                   />
                 </div>
               </div>
