@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import LocationName from '@/components/LocationName';
 import { reportApi } from '@/lib/api';
 import { Report, getCategoryInfo } from '@/lib/types';
 import {
@@ -212,8 +213,8 @@ export default function MyReportsPage() {
                     <p className="text-sm text-slate-600">
                       Reported: {reportedDate}
                     </p>
-                    <p className="text-sm text-slate-600">
-                      Location: {report.latitude.toFixed(2)}, {report.longitude.toFixed(2)}
+                    <p className="text-sm text-slate-600 truncate">
+                      Location: <LocationName latitude={report.latitude} longitude={report.longitude} />
                     </p>
                   </div>
 

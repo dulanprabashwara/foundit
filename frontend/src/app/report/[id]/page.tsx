@@ -35,6 +35,7 @@ export default function ReportDetailPage() {
   const [commentLoading, setCommentLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
   const [error, setError] = useState('');
+  const [locationName, setLocationName] = useState<string>('Loading location...');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -47,6 +48,28 @@ export default function ReportDetailPage() {
       fetchReport();
     }
   }, [user, reportId]);
+
+  useEffect(() => {
+    if (report) {
+      const fetchLocationName = async () => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${report.latitude}&lon=${report.longitude}`);
+          const data = await res.json();
+          if (data && data.address) {
+            const city = data.address.city || data.address.town || data.address.village || data.address.county || '';
+            const state = data.address.state || data.address.country || '';
+            const name = city && state ? `${city}, ${state}` : data.display_name.split(',').slice(0, 2).join(', ');
+            setLocationName(name || `${report.latitude.toFixed(4)}, ${report.longitude.toFixed(4)}`);
+          } else {
+            setLocationName(`${report.latitude.toFixed(4)}, ${report.longitude.toFixed(4)}`);
+          }
+        } catch (err) {
+          setLocationName(`${report.latitude.toFixed(4)}, ${report.longitude.toFixed(4)}`);
+        }
+      };
+      fetchLocationName();
+    }
+  }, [report?.latitude, report?.longitude]);
 
   const fetchReport = async () => {
     try {
@@ -240,7 +263,7 @@ export default function ReportDetailPage() {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <MapPin className="w-4 h-4" />
-                  {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}
+                  {locationName}
                 </span>
               </div>
 

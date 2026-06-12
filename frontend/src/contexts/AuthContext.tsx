@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Update Firebase profile
     const photoURL = imageFile 
-      ? userApi.getImageUrl(auth.currentUser.uid) 
+      ? `${userApi.getImageUrl(auth.currentUser.uid)}?t=${Date.now()}`
       : auth.currentUser.photoURL;
       
     await updateProfile(auth.currentUser, { displayName: name, photoURL });
