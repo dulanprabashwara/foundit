@@ -64,7 +64,7 @@ export default function AuthPage() {
             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
               <Search className="w-7 h-7" strokeWidth={2.5} />
             </div>
-            <h1 className="text-3xl font-bold">FoundIt</h1>
+            <h1 className="text-4xl font-bold tracking-tight">FoundIt</h1>
           </div>
 
           <h2 className="text-4xl font-bold leading-tight mb-6">
@@ -105,7 +105,7 @@ export default function AuthPage() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25">
               <Search className="w-5 h-5 text-white" strokeWidth={2.5} />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">
+            <span className="text-3xl font-bold bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">
               FoundIt
             </span>
           </div>
