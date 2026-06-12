@@ -20,6 +20,7 @@ import {
   AlertCircle,
   Sparkles,
   Camera,
+  Navigation,
 } from 'lucide-react';
 
 const STEPS = [
@@ -42,6 +43,7 @@ export default function NewReportPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [dragActive, setDragActive] = useState(false);
+  const [geolocating, setGeolocating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -80,6 +82,26 @@ export default function NewReportPage() {
   const handleMapClick = useCallback((lat: number, lng: number) => {
     setPosition([lat, lng]);
   }, []);
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setGeolocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setPosition([pos.coords.latitude, pos.coords.longitude]);
+        setGeolocating(false);
+      },
+      (err) => {
+        setError('Failed to get your location. Please set it manually.');
+        setGeolocating(false);
+      },
+      { enableHighAccuracy: true }
+    );
+  };
 
   const canProceed = () => {
     switch (currentStep) {
@@ -323,6 +345,19 @@ export default function NewReportPage() {
               <p className="text-sm text-slate-500 mb-4">
                 Click on the map to drop a pin where the item was lost or found.
               </p>
+
+              <button
+                onClick={handleUseMyLocation}
+                disabled={geolocating}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-50 text-primary-700 border border-primary-200 rounded-xl text-sm font-semibold hover:bg-primary-100 transition-colors mb-4"
+              >
+                {geolocating ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Navigation className="w-4 h-4" />
+                )}
+                Use My Current Location
+              </button>
 
               {position && (
                 <div className="flex items-center gap-2 px-3 py-2 bg-primary-50 rounded-xl text-sm text-primary-700 mb-4">
