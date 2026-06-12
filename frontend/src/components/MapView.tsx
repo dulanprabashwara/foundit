@@ -12,6 +12,8 @@ interface MapViewProps {
   zoom?: number;
   onMapClick?: (lat: number, lng: number) => void;
   selectedPosition?: [number, number] | null;
+  selectedReportId?: string | null;
+  onReportSelect?: (id: string) => void;
   className?: string;
   interactive?: boolean;
 }
@@ -22,6 +24,8 @@ export default function MapView({
   zoom = 13,
   onMapClick,
   selectedPosition,
+  selectedReportId,
+  onReportSelect,
   className = '',
   interactive = true,
 }: MapViewProps) {
@@ -76,9 +80,9 @@ export default function MapView({
       }
 
       // Add report markers
-      updateMarkers(L, map, reports);
+      updateMarkers(L, map, reports, selectedReportId);
 
-      // Add selected position marker
+      // Add selected position marker (for new report drop pin)
       if (selectedPosition) {
         updateSelectedMarker(L, map, selectedPosition);
       }
@@ -94,16 +98,24 @@ export default function MapView({
     };
   }, [isClient]);
 
-  // Update markers when reports change
+  // Update markers when reports or selectedReportId change
   useEffect(() => {
     if (!isClient || !mapInstanceRef.current) return;
 
     const updateAsync = async () => {
       const L = (await import('leaflet')).default;
-      updateMarkers(L, mapInstanceRef.current, reports);
+      updateMarkers(L, mapInstanceRef.current, reports, selectedReportId);
+      
+      // Pan to selected report
+      if (selectedReportId) {
+        const report = reports.find(r => r.id === selectedReportId);
+        if (report) {
+          mapInstanceRef.current.flyTo([report.latitude, report.longitude], 15, { animate: true, duration: 1 });
+        }
+      }
     };
     updateAsync();
-  }, [reports, isClient]);
+  }, [reports, selectedReportId, isClient]);
 
   // Update selected position marker
   useEffect(() => {
@@ -122,7 +134,7 @@ export default function MapView({
     updateAsync();
   }, [selectedPosition, isClient]);
 
-  function updateMarkers(L: any, map: any, reports: Report[]) {
+  function updateMarkers(L: any, map: any, reports: Report[], selectedId?: string | null) {
     // Clear existing markers
     markersRef.current.forEach(m => map.removeLayer(m));
     markersRef.current = [];
@@ -130,70 +142,88 @@ export default function MapView({
     reports.forEach((report) => {
       if (report.status === 'RESOLVED') return; // Don't show resolved on map
 
-      const catInfo = getCategoryInfo(report.category);
+      const isSelected = report.id === selectedId;
+      const isLost = report.id.length % 2 === 0; // Mock LOST vs FOUND
+      const color = isLost ? '#ef4444' : '#10b981'; // Red for Lost, Green for Found
+      
+      // We will render an HTML marker that looks like the screenshot
+      // A circle with an image inside, a pointer at the bottom, and a glowing ring if selected
+      
+      const imageUrl = report.hasImage ? reportApi.getImageUrl(report.id) : null;
+      
+      const html = `
+        <div style="position: relative; display: flex; flex-direction: column; items-center; justify-content: center; transform: translate(-50%, -100%); width: 64px; height: 64px;">
+          ${isSelected ? `
+            <div style="
+              position: absolute;
+              top: 50%; left: 50%; transform: translate(-50%, -50%);
+              width: 90px; height: 90px;
+              border-radius: 50%;
+              background: ${color}30;
+              border: 2px solid ${color}80;
+              animation: pulse 2s infinite;
+              z-index: 1;
+              pointer-events: none;
+            "></div>
+            <div style="
+              position: absolute;
+              top: 50%; left: 50%; transform: translate(-50%, -50%);
+              width: 130px; height: 130px;
+              border-radius: 50%;
+              background: ${color}15;
+              border: 1px solid ${color}40;
+              animation: pulse 2.5s infinite reverse;
+              z-index: 0;
+              pointer-events: none;
+            "></div>
+          ` : ''}
+          
+          <div style="
+            position: relative;
+            z-index: 10;
+            width: 48px; height: 48px;
+            background: ${color};
+            border-radius: 50%;
+            border: 3px solid ${isSelected ? '#ffffff' : color};
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            ${isSelected ? 'transform: scale(1.1);' : ''}
+          ">
+            ${imageUrl 
+              ? `<img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" />`
+              : `<span style="font-size: 20px;">${getCategoryInfo(report.category).emoji}</span>`
+            }
+          </div>
+          <div style="
+            width: 0; height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 10px solid ${color};
+            margin: 0 auto;
+            margin-top: -2px;
+            z-index: 9;
+            ${isSelected ? 'transform: scale(1.1); transform-origin: top;' : ''}
+          "></div>
+        </div>
+      `;
 
       const icon = L.divIcon({
-        className: 'custom-marker',
-        html: `
-          <div style="
-            width: 36px;
-            height: 36px;
-            border-radius: 50% 50% 50% 0;
-            background: ${catInfo.color};
-            transform: rotate(-45deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 3px 10px ${catInfo.color}40;
-            border: 2px solid white;
-            cursor: pointer;
-          ">
-            <span style="transform: rotate(45deg); font-size: 16px; line-height: 1;">${catInfo.emoji}</span>
-          </div>
-        `,
-        iconSize: [36, 36],
-        iconAnchor: [18, 36],
-        popupAnchor: [0, -36],
+        className: 'custom-map-marker',
+        html,
+        iconSize: [0, 0], // Position handled by CSS transform
+        iconAnchor: [0, 0], 
       });
 
       const marker = L.marker([report.latitude, report.longitude], { icon }).addTo(map);
 
-      const popupContent = `
-        <div style="padding: 12px; min-width: 200px; font-family: Inter, sans-serif;">
-          ${report.hasImage ? `
-            <div style="margin: -12px -12px 10px -12px; border-radius: 12px 12px 0 0; overflow: hidden;">
-              <img src="${reportApi.getImageUrl(report.id)}" 
-                   alt="${report.title}"
-                   style="width: 100%; height: 120px; object-fit: cover;" />
-            </div>
-          ` : ''}
-          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-            <span style="
-              background: ${catInfo.color}15;
-              color: ${catInfo.color};
-              padding: 2px 8px;
-              border-radius: 20px;
-              font-size: 11px;
-              font-weight: 600;
-            ">${catInfo.emoji} ${catInfo.label}</span>
-          </div>
-          <h3 style="font-weight: 600; font-size: 14px; color: #1e293b; margin-bottom: 4px; line-height: 1.3;">
-            ${report.title}
-          </h3>
-          <p style="font-size: 12px; color: #64748b; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-            ${report.description}
-          </p>
-          <a href="/report/${report.id}" 
-             style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #4f46e5; text-decoration: none;">
-            View Details →
-          </a>
-        </div>
-      `;
-
-      marker.bindPopup(popupContent, {
-        maxWidth: 280,
-        closeButton: true,
-      });
+      if (onReportSelect) {
+        marker.on('click', () => {
+          onReportSelect(report.id);
+        });
+      }
 
       markersRef.current.push(marker);
     });

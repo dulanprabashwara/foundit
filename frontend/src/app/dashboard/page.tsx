@@ -31,6 +31,7 @@ export default function DashboardPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [viewMode, setViewMode] = useState<'split' | 'map' | 'feed'>('split');
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -66,6 +67,13 @@ export default function DashboardPage() {
       report.title.toLowerCase().includes(query) ||
       report.description.toLowerCase().includes(query)
     );
+  });
+
+  // Sort so selected report is at the top
+  const sortedReports = [...filteredReports].sort((a, b) => {
+    if (a.id === selectedReportId) return -1;
+    if (b.id === selectedReportId) return 1;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
   if (authLoading || !user) {
@@ -207,7 +215,7 @@ export default function DashboardPage() {
           <div
             className={`${
               viewMode === 'split'
-                ? 'grid grid-cols-1 lg:grid-cols-2 gap-6'
+                ? 'grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6 max-w-none'
                 : viewMode === 'map'
                 ? ''
                 : ''
@@ -215,16 +223,18 @@ export default function DashboardPage() {
           >
             {/* Feed */}
             {(viewMode === 'split' || viewMode === 'feed') && (
-              <div className="max-w-4xl mx-auto w-full">
+              <div className={`${viewMode === 'split' ? 'order-1 h-[calc(100vh-220px)] overflow-y-auto pr-2 custom-scrollbar' : 'max-w-4xl mx-auto w-full'}`}>
                 <div
-                  className={`grid gap-6 ${
-                    viewMode === 'feed' || viewMode === 'split'
-                      ? 'grid-cols-1 md:grid-cols-2'
+                  className={`grid gap-4 ${
+                    viewMode === 'feed'
+                      ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
                       : 'grid-cols-1'
                   }`}
                 >
-                  {filteredReports.map((report, i) => (
-                    <ReportCard key={report.id} report={report} index={i} />
+                  {sortedReports.map((report, i) => (
+                    <div key={report.id} onClick={() => setSelectedReportId(report.id)} className={`transition-all duration-300 ${report.id === selectedReportId ? 'ring-2 ring-indigo-500 rounded-2xl scale-[1.02]' : 'hover:scale-[1.01]'}`}>
+                      <ReportCard report={report} index={i} />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -243,7 +253,14 @@ export default function DashboardPage() {
                   viewMode === 'split' ? 'h-[calc(100vh-220px)]' : 'h-[calc(100vh-240px)]'
                 }`}>
                   <MapView
-                    reports={filteredReports}
+                    reports={sortedReports}
+                    selectedReportId={selectedReportId}
+                    onReportSelect={(id) => {
+                      setSelectedReportId(id);
+                      if (viewMode === 'map') {
+                        setViewMode('split');
+                      }
+                    }}
                     className="w-full h-full"
                   />
                 </div>
