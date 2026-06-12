@@ -21,8 +21,10 @@ import {
   Info,
   Edit2,
   Clock,
-  Camera
+  Camera,
+  Upload
 } from 'lucide-react';
+import { userApi } from '@/lib/api';
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
@@ -31,9 +33,12 @@ export default function ProfilePage() {
   // Profile state
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('123-456-7789');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [recentReports, setRecentReports] = useState<Report[]>([]);
+  const { updateProfileData } = useAuth();
 
   // Notification Settings state
   const [latitude, setLatitude] = useState<number>(6.9271);
@@ -51,7 +56,13 @@ export default function ProfilePage() {
       router.push('/');
     } else if (user) {
       setFullName(user.displayName || 'Jane Doe');
-      setEmail(user.email || 'av.janedoe@gmail.com');
+      setEmail(user.email || 'user@example.com');
+      
+      // Fetch backend user data
+      userApi.getMe().then(data => {
+        if (data.phone) setPhoneNumber(data.phone);
+        if (data.hasPhoto) setPhotoUrl(userApi.getImageUrl(user.uid));
+      }).catch(err => console.error('Failed to load user profile', err));
       
       reportApi.getMyReports().then(data => {
         setRecentReports(data.slice(0, 2));
@@ -70,19 +81,34 @@ export default function ProfilePage() {
     }
   }, []);
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     setSavingProfile(true);
     
-    // Save geofence settings
-    localStorage.setItem(
-      'foundit_geofence',
-      JSON.stringify({ latitude, longitude, radius })
-    );
+    try {
+      // Save profile data
+      await updateProfileData(fullName, phoneNumber, photoFile);
+      
+      // Save geofence settings
+      localStorage.setItem(
+        'foundit_geofence',
+        JSON.stringify({ latitude, longitude, radius })
+      );
 
-    setTimeout(() => {
-      setSavingProfile(false);
       alert('Profile and Notification Settings updated successfully!');
-    }, 1000);
+    } catch (error) {
+      console.error('Failed to save changes:', error);
+      alert('Failed to save changes. Please try again.');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPhotoFile(file);
+      setPhotoUrl(URL.createObjectURL(file));
+    }
   };
 
   const handleUseMyLocation = () => {
@@ -144,10 +170,18 @@ export default function ProfilePage() {
         {/* Profile Header Card */}
         <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between mb-6 gap-6 md:gap-0">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-100 to-indigo-50 p-1 ring-4 ring-white shadow-md relative">
-              <div className="w-full h-full rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-semibold overflow-hidden">
-                {fullName.charAt(0).toUpperCase()}
-              </div>
+            <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-100 to-indigo-50 p-1 ring-4 ring-white shadow-md relative group cursor-pointer">
+              <input type="file" id="profile-upload" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+              <label htmlFor="profile-upload" className="w-full h-full rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-semibold overflow-hidden relative cursor-pointer">
+                {photoUrl ? (
+                  <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  fullName.charAt(0).toUpperCase()
+                )}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Upload className="w-6 h-6 text-white" />
+                </div>
+              </label>
             </div>
             <div className="mt-1">
               <h1 className="text-3xl font-bold text-slate-900">{fullName}</h1>

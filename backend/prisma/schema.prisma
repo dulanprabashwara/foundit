@@ -9,8 +9,10 @@ generator client {
 model User {
   id       String    @id // Matches Firebase Auth UID
   email    String    @unique
-  name     String
-  reports  Report[]
+  name      String
+  phone     String?
+  photoData Bytes?
+  reports   Report[]
   comments Comment[]
 }
 

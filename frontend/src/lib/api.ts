@@ -36,6 +36,12 @@ export const userApi = {
       body: JSON.stringify({ name }),
     }),
   getMe: () => apiRequest('/users/me'),
+  updateProfile: (formData: FormData) =>
+    apiRequest('/users/me', {
+      method: 'PATCH',
+      body: formData,
+    }),
+  getImageUrl: (id: string) => `${API_URL}/users/${id}/image`,
 };
 
 // Reports API

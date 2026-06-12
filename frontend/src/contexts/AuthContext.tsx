@@ -21,6 +21,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  updateProfileData: (name: string, phone: string, imageFile?: File | null) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,8 +65,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await firebaseSignOut(auth);
   };
 
+  const updateProfileData = async (name: string, phone: string, imageFile?: File | null) => {
+    if (!auth.currentUser) return;
+    
+    // Update backend profile first to save the image
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('phone', phone);
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+    
+    await userApi.updateProfile(formData);
+
+    // Update Firebase profile
+    const photoURL = imageFile 
+      ? userApi.getImageUrl(auth.currentUser.uid) 
+      : auth.currentUser.photoURL;
+      
+    await updateProfile(auth.currentUser, { displayName: name, photoURL });
+    
+    // Force user state refresh to trigger re-renders
+    setUser({ ...auth.currentUser });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signInWithGoogle, signOut, updateProfileData }}>
       {children}
     </AuthContext.Provider>
   );

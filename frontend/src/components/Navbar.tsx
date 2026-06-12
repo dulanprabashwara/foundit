@@ -132,7 +132,11 @@ export default function Navbar() {
                 className="flex items-center"
               >
                 <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white text-sm font-medium border-2 border-white shadow-sm overflow-hidden hover:ring-2 hover:ring-primary-500/50 transition-all">
-                  {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                  {user?.photoURL ? (
+                    <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'
+                  )}
                 </div>
               </button>
 
