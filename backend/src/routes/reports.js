@@ -2,6 +2,7 @@ const express = require('express');
 const prisma = require('../lib/prisma');
 const { authenticate, optionalAuth } = require('../middleware/auth');
 const multer = require('multer');
+const { getCache, setCache, clearCache } = require('../lib/redis');
 
 const router = express.Router();
 
@@ -53,6 +54,16 @@ router.get('/user/me', authenticate, async (req, res) => {
 router.get('/', optionalAuth, async (req, res) => {
   try {
     const { category, status, lat, lng, radius, query } = req.query;
+
+    // Generate a unique cache key based on the query parameters
+    const cacheKey = `reports:${JSON.stringify(req.query)}`;
+    
+    // Check Upstash Redis Cache first
+    const cachedReports = await getCache(cacheKey);
+    if (cachedReports) {
+      console.log('Serving reports from Upstash Redis cache');
+      return res.json(cachedReports);
+    }
 
     const where = {};
 
@@ -106,6 +117,9 @@ router.get('/', optionalAuth, async (req, res) => {
         return distance <= maxDistance;
       });
     }
+
+    // Cache the results in Upstash Redis for 60 seconds
+    await setCache(cacheKey, reports, 60);
 
     res.json(reports);
   } catch (error) {
@@ -231,6 +245,9 @@ router.post('/', authenticate, upload.single('image'), async (req, res) => {
         author: { select: { id: true, name: true, email: true } },
       },
     });
+
+    // Clear reports cache so new report appears instantly
+    await clearCache('reports:*');
 
     res.status(201).json(report);
   } catch (error) {

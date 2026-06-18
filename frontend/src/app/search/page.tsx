@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import Navbar from '@/components/Navbar';
 import { reportApi } from '@/lib/api';
 import { Report, getCategoryInfo, CATEGORIES } from '@/lib/types';
@@ -29,7 +30,7 @@ export default function SearchPage() {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [reports, setReports] = useState<Report[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
 
   useEffect(() => {
@@ -44,29 +45,32 @@ export default function SearchPage() {
     }
   }, []);
 
-  const fetchResults = async () => {
-    setLoading(true);
-    try {
-      const data = await reportApi.list({
-        query: query.trim() || undefined,
-        category: activeCategory !== 'ALL' ? activeCategory : undefined
-      });
-      setReports(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     // Debounce search typing
     const delayDebounceFn = setTimeout(() => {
-      fetchResults();
+      setDebouncedQuery(query.trim());
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query, activeCategory]);
+  }, [query]);
+
+  // Fetcher for SWR
+  const fetcher = async () => {
+    return await reportApi.list({
+      query: debouncedQuery || undefined,
+      category: activeCategory !== 'ALL' ? activeCategory : undefined
+    });
+  };
+
+  const { data: swrReports = [], isLoading: loading } = useSWR(
+    `/api/reports/search?q=${debouncedQuery}&cat=${activeCategory}`,
+    fetcher,
+    { revalidateOnFocus: false, refreshInterval: 60000 }
+  );
+
+  useEffect(() => {
+    setReports(swrReports);
+  }, [swrReports]);
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col">

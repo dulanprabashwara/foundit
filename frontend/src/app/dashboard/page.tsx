@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import useSWR from 'swr';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
@@ -26,9 +27,6 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [reports, setReports] = useState<Report[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [viewMode, setViewMode] = useState<'split' | 'map' | 'feed'>('split');
@@ -43,25 +41,25 @@ export default function DashboardPage() {
     }
   }, [user, authLoading, router]);
 
-  const fetchReports = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const data = await reportApi.list({
-        category: selectedCategory !== 'ALL' ? selectedCategory : undefined,
-      });
-      setReports(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch reports');
-    } finally {
-      setLoading(false);
+  // Fetcher for SWR
+  const fetcher = async () => {
+    return await reportApi.list({
+      category: selectedCategory !== 'ALL' ? selectedCategory : undefined,
+    });
+  };
+
+  const { data: reports = [], error: swrError, isLoading: loading, mutate: refreshReports } = useSWR(
+    user ? `/api/reports?category=${selectedCategory}` : null,
+    fetcher,
+    {
+      revalidateOnFocus: true,
+      refreshInterval: 60000, // Revalidate every minute
     }
-  }, [selectedCategory]);
+  );
+
+  const error = swrError?.message || '';
 
   useEffect(() => {
-    if (user) {
-      fetchReports();
-    }
     const saved = localStorage.getItem('foundit_geofence');
     if (saved) {
       try {
@@ -72,9 +70,9 @@ export default function DashboardPage() {
       // Default to Colombo center if no geofence is set yet
       setUserLocation({ latitude: 6.9271, longitude: 79.8612 });
     }
-  }, [user, fetchReports]);
+  }, []);
 
-  const filteredReports = reports.filter((report) => {
+  const filteredReports = (reports as Report[]).filter((report: Report) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -89,7 +87,7 @@ export default function DashboardPage() {
     if (b.id === selectedReportId) return 1;
     
     if (selectedReportId) {
-      const selected = reports.find(r => r.id === selectedReportId);
+      const selected = (reports as Report[]).find((r: Report) => r.id === selectedReportId);
       if (selected) {
         // Simple Pythagorean distance for sorting nearby items
         const distA = Math.pow(a.latitude - selected.latitude, 2) + Math.pow(a.longitude - selected.longitude, 2);
@@ -214,7 +212,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-3 px-4 py-3 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-600 mb-6 animate-fade-in">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {error}
-            <button onClick={fetchReports} className="ml-auto font-semibold hover:underline">
+            <button onClick={() => refreshReports()} className="ml-auto font-semibold hover:underline">
               Retry
             </button>
           </div>
