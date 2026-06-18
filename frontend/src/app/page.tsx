@@ -131,9 +131,9 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="flex-1 relative w-full aspect-square md:aspect-auto md:h-100">
+            <div className="flex-1 relative w-full aspect-square max-w-[450px] mx-auto">
               {/* Main Image */}
-              <div className="absolute inset-0 bg-slate-200 rounded-[50%] shadow-xl overflow-hidden border-8 border-white">
+              <div className="absolute inset-0 bg-slate-200 rounded-full shadow-xl overflow-hidden border-8 border-white">
                 <img 
                   alt="FoundIt Platform" 
                   className="w-full h-full object-cover" 
