@@ -135,7 +135,7 @@ export default function LandingPage() {
               <img 
                 alt="FoundIt Platform" 
                 className="w-full max-w-2xl object-contain drop-shadow-xl" 
-                src="/logo.png"
+                src="/picture.png"
               />
             </div>
           </section>
