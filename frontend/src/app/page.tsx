@@ -131,9 +131,9 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="flex-1 relative w-full aspect-square max-w-[450px] mx-auto">
+            <div className="flex-1 relative w-full aspect-square md:aspect-auto md:h-100">
               {/* Main Image */}
-              <div className="absolute inset-0 bg-slate-200 rounded-full shadow-xl overflow-hidden border-8 border-white">
+              <div className="absolute inset-0 bg-slate-200 rounded-[3rem] shadow-xl overflow-hidden border-8 border-white">
                 <img 
                   alt="FoundIt Platform" 
                   className="w-full h-full object-cover" 
@@ -141,13 +141,13 @@ export default function LandingPage() {
                 />
               </div>
               {/* Decorative Floating Circles */}
-              <div className="absolute top-[8%] left-[0%] w-28 h-28 rounded-full bg-white shadow-xl border-4 border-white overflow-hidden z-10">
+              <div className="absolute top-4 -left-4 w-24 h-24 rounded-full bg-emerald-100 shadow-xl border-4 border-white overflow-hidden z-10">
                 <img alt="Lost pet" className="w-full h-full object-cover" src="/pet.png"/>
               </div>
-              <div className="absolute bottom-[8%] -right-[5%] w-36 h-36 rounded-full bg-white shadow-xl border-4 border-white overflow-hidden z-10">
+              <div className="absolute bottom-12 -right-6 w-32 h-32 rounded-full bg-amber-100 shadow-xl border-4 border-white overflow-hidden z-10">
                 <img alt="Lost backpack" className="w-full h-full object-cover" src="/bag.png"/>
               </div>
-              <div className="absolute -top-[5%] right-[15%] w-20 h-20 rounded-full bg-white shadow-xl border-4 border-white overflow-hidden flex items-center justify-center z-10">
+              <div className="absolute -top-8 right-12 w-20 h-20 rounded-full bg-white shadow-xl border-4 border-white overflow-hidden flex items-center justify-center z-10">
                 <img alt="Key icon" className="w-full h-full object-cover" src="/key.png"/>
               </div>
             </div>
