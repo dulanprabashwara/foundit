@@ -89,7 +89,15 @@ export default function LandingPage() {
           </div>
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-8">
-            <a className="text-slate-500 font-medium hover:text-primary-600 transition-colors" href="#how-it-works">How It Works</a>
+            <a 
+              className="text-slate-500 font-medium hover:text-primary-600 transition-colors cursor-pointer" 
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              How It Works
+            </a>
             <button onClick={() => openAuth(true)} className="text-slate-500 font-medium hover:text-primary-600 transition-colors">Post an Item</button>
             <button onClick={() => openAuth(true)} className="text-slate-500 font-medium hover:text-primary-600 transition-colors">Search Items</button>
           </div>
