@@ -172,8 +172,8 @@ export default function LandingPage() {
                     <MapPin className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold text-slate-900">Step 1: Report</h4>
-                    <p className="text-sm text-slate-500 mt-2">Log where and when you lost or found the item.</p>
+                    <h4 className="text-xl font-bold text-slate-900">Step 1: Post Where You Lost or Found</h4>
+                    <p className="text-sm text-slate-500 mt-2">Describe where you lost your item — by location, local shops, or public transportation.</p>
                   </div>
                 </div>
               </div>
@@ -188,8 +188,8 @@ export default function LandingPage() {
                     <Search className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold text-slate-900">Step 2: Search</h4>
-                    <p className="text-sm text-slate-500 mt-2">Browse the database for matching found items near you.</p>
+                    <h4 className="text-xl font-bold text-slate-900">Step 2: Search Items by Location</h4>
+                    <p className="text-sm text-slate-500 mt-2">Browse items reported by people based on location or public transportation.</p>
                   </div>
                 </div>
               </div>
@@ -204,8 +204,8 @@ export default function LandingPage() {
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold text-slate-900">Step 3: Recover</h4>
-                    <p className="text-sm text-slate-500 mt-2">Connect safely and get your belongings back.</p>
+                    <h4 className="text-xl font-bold text-slate-900">Step 3: Get Matched & Recovered</h4>
+                    <p className="text-sm text-slate-500 mt-2">Wait to be contacted and reconnect with your lost item quickly and securely.</p>
                   </div>
                 </div>
               </div>
