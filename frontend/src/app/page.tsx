@@ -181,7 +181,7 @@ export default function LandingPage() {
               {/* Step 2 */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:-translate-y-1 transition-transform duration-300">
                 <div className="h-48 bg-slate-100 w-full relative">
-                  <img alt="Search" className="w-full h-full object-cover opacity-80" src="https://images.unsplash.com/photo-1478860409681-4b130761e389?q=80&w=600&auto=format&fit=crop"/>
+                  <img alt="Search" className="w-full h-full object-cover opacity-80" src="/location.jfif"/>
                 </div>
                 <div className="p-6 text-left space-y-4">
                   <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
