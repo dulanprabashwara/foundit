@@ -143,8 +143,8 @@ export default function MapView({
       if (report.status === 'RESOLVED') return; // Don't show resolved on map
 
       const isSelected = report.id === selectedId;
-      const isLost = report.id.length % 2 === 0; // Mock LOST vs FOUND
-      const color = isLost ? '#ef4444' : '#10b981'; // Red for Lost, Green for Found
+      const isLost = report.type === 'LOST'; // Red for Lost, Green for Found
+      const color = isLost ? '#ef4444' : '#10b981';
       
       // We will render an HTML marker that looks like the screenshot
       // A circle with an image inside, a pointer at the bottom, and a glowing ring if selected
