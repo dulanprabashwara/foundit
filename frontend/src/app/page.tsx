@@ -220,29 +220,29 @@ export default function LandingPage() {
             <div className="flex-1 space-y-6">
               <div className="text-sm font-bold text-emerald-600 tracking-widest uppercase">Trust & Community</div>
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
-                Powered by Community & <span className="text-emerald-600">Businesses</span>
+                Powered by the <span className="text-emerald-600">Community</span>
               </h2>
               <p className="text-lg text-slate-500">
-                Using our community-powered platform, individuals and businesses work together to return lost items with speed, accuracy, and trust.
+                Using our platform, neighbors and good samaritans work together to return lost items with speed, accuracy, and trust.
               </p>
               <ul className="space-y-4">
                 <li className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                     <Shield className="w-6 h-6" />
                   </div>
-                  <span className="text-lg font-medium text-slate-900">Businesses manage lost & found efficiently</span>
+                  <span className="text-lg font-medium text-slate-900">Verified users and secure communication</span>
                 </li>
                 <li className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                     <Users className="w-6 h-6" />
                   </div>
-                  <span className="text-lg font-medium text-slate-900">Users connect directly with finders</span>
+                  <span className="text-lg font-medium text-slate-900">Connect directly with helpful neighbors</span>
                 </li>
                 <li className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                     <RefreshCw className="w-6 h-6" />
                   </div>
-                  <span className="text-lg font-medium text-slate-900">Secure and structured recovery process</span>
+                  <span className="text-lg font-medium text-slate-900">Real-time updates and notifications</span>
                 </li>
               </ul>
             </div>
