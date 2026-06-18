@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, Suspense } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
@@ -29,7 +29,7 @@ const STEPS = [
   { id: 3, title: 'Set Location', icon: MapPin, description: 'Mark where it was seen' },
 ];
 
-export default function NewReportPage() {
+function NewReportContent() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -444,5 +444,18 @@ export default function NewReportPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function NewReportPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+        <Loader2 className="w-8 h-8 animate-spin text-emerald-500 mb-4" />
+        <p className="text-slate-500">Loading form...</p>
+      </div>
+    }>
+      <NewReportContent />
+    </Suspense>
   );
 }
