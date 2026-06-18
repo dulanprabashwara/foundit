@@ -141,14 +141,14 @@ export default function LandingPage() {
                 />
               </div>
               {/* Decorative Floating Circles */}
-              <div className="absolute top-4 -left-4 w-24 h-24 rounded-full bg-emerald-100 shadow-md border-4 border-white overflow-hidden">
-                <img alt="Lost pet" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=400&auto=format&fit=crop"/>
+              <div className="absolute top-[8%] left-[0%] w-28 h-28 rounded-full bg-white shadow-xl border-4 border-white overflow-hidden z-10">
+                <img alt="Lost pet" className="w-full h-full object-cover" src="/pet.png"/>
               </div>
-              <div className="absolute bottom-12 -right-6 w-32 h-32 rounded-full bg-amber-100 shadow-md border-4 border-white overflow-hidden">
-                <img alt="Lost backpack" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=400&auto=format&fit=crop"/>
+              <div className="absolute bottom-[8%] -right-[5%] w-36 h-36 rounded-full bg-white shadow-xl border-4 border-white overflow-hidden z-10">
+                <img alt="Lost backpack" className="w-full h-full object-cover" src="/bag.png"/>
               </div>
-              <div className="absolute -top-8 right-12 w-20 h-20 rounded-full bg-white shadow-md border-4 border-white overflow-hidden flex items-center justify-center">
-                <Key className="text-primary-600 w-8 h-8" />
+              <div className="absolute -top-[5%] right-[15%] w-20 h-20 rounded-full bg-white shadow-xl border-4 border-white overflow-hidden flex items-center justify-center z-10">
+                <img alt="Key icon" className="w-full h-full object-cover" src="/key.png"/>
               </div>
             </div>
           </section>
