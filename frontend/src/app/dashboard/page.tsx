@@ -19,6 +19,7 @@ import {
   RefreshCw,
   SlidersHorizontal,
   CheckCircle2,
+  Plus,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -229,21 +230,29 @@ export default function DashboardPage() {
           </div>
         ) : filteredReports.length === 0 ? (
           /* Empty state */
-          <div className="flex flex-col items-center justify-center py-20 animate-fade-in">
-            <div className="w-20 h-20 rounded-2xl bg-primary-50 flex items-center justify-center mb-4">
-              <MapPin className="w-10 h-10 text-primary-300" />
+          <div className="flex flex-col items-center justify-center py-20 px-6 bg-white border border-slate-200/60 rounded-3xl shadow-xs animate-fade-in relative overflow-hidden max-w-2xl mx-auto">
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary-50 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/3"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60 translate-y-1/2 -translate-x-1/3"></div>
+
+            <div className="relative w-24 h-24 mb-6">
+              <div className="absolute inset-0 bg-primary-100 rounded-full animate-ping opacity-20"></div>
+              <div className="relative w-full h-full bg-linear-to-br from-white to-primary-50 border border-primary-100 rounded-full flex items-center justify-center shadow-lg shadow-primary-500/10">
+                <MapPin className="w-10 h-10 text-primary-500 drop-shadow-sm" />
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-slate-700 mb-2">No reports found</h3>
-            <p className="text-sm text-slate-500 text-center max-w-sm mb-6">
+            <h3 className="text-2xl font-bold text-slate-800 mb-3 relative z-10">No reports found</h3>
+            <p className="text-base text-slate-500 text-center max-w-md mb-8 relative z-10 leading-relaxed">
               {searchQuery
-                ? 'No reports match your search. Try different keywords.'
-                : 'There are no active reports yet. Be the first to report a lost item!'}
+                ? 'We could not find any reports matching your search. Try different keywords or adjust your filters.'
+                : 'Your feed is currently empty. Whether you lost something or found an item, create a report to get started!'}
             </p>
             <button
               onClick={() => setShowReportTypeModal(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/25"
+              className="relative z-10 flex items-center gap-2.5 px-8 py-3.5 bg-slate-900 text-white rounded-full text-sm font-semibold hover:bg-slate-800 hover:-translate-y-0.5 transition-all shadow-xl shadow-slate-900/20"
             >
-              Report an Item
+              <Plus className="w-4.5 h-4.5" />
+              Create a Report
             </button>
           </div>
         ) : (
