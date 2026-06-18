@@ -148,8 +148,8 @@ export default function LandingPage() {
               <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
                 Lost something? <br className="hidden md:block" />Start your search now.
               </h1>
-              <p className="text-lg text-slate-500">
-                Found something? Help return it to its owner. We connect people to recover what matters most across cities worldwide.
+              <p className="text-lg text-slate-500 max-w-2xl mx-auto md:mx-0 leading-relaxed">
+                Whether you've misplaced a cherished item or stumbled upon someone else's belongings, FoundIt is here to help. We connect people to recover what matters most across cities worldwide. Join our community to instantly post missing items, receive real-time alerts for nearby matches, and bring lost valuables back home where they belong.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 pt-4">
                 <button 
