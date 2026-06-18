@@ -226,9 +226,10 @@ export default function Navbar() {
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                     </Link>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         setProfileDropdown(false);
-                        signOut();
+                        await signOut();
+                        router.push('/');
                       }}
                       className="flex items-center gap-2 w-full px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
                     >
@@ -274,9 +275,10 @@ export default function Navbar() {
             })}
             <div className="border-t border-slate-100 pt-2 mt-2">
               <button
-                onClick={() => {
+                onClick={async () => {
                   setMobileMenuOpen(false);
-                  signOut();
+                  await signOut();
+                  router.push('/');
                 }}
                 className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-xl"
               >

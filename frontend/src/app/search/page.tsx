@@ -137,12 +137,18 @@ export default function SearchPage() {
               <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
             </div>
           ) : reports.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-center bg-white rounded-2xl border border-slate-200 border-dashed">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                <Search className="w-8 h-8 text-slate-300" />
+            <div className="flex flex-col items-center justify-center py-24 px-6 bg-white border border-slate-200/60 rounded-3xl shadow-xs animate-fade-in relative overflow-hidden max-w-2xl mx-auto mt-4">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary-50 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/3"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60 translate-y-1/2 -translate-x-1/3"></div>
+
+              <div className="relative w-24 h-24 mb-6">
+                <div className="absolute inset-0 bg-primary-100 rounded-full animate-ping opacity-20"></div>
+                <div className="relative w-full h-full bg-linear-to-br from-white to-primary-50 border border-primary-100 rounded-full flex items-center justify-center shadow-lg shadow-primary-500/10">
+                  <Search className="w-10 h-10 text-primary-500 drop-shadow-sm" />
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-slate-800 mb-1">No results found</h3>
-              <p className="text-slate-500 max-w-md">
+              <h3 className="text-2xl font-bold text-slate-800 mb-3 relative z-10">No results found</h3>
+              <p className="text-base text-slate-500 text-center max-w-md mb-2 relative z-10 leading-relaxed">
                 We couldn't find any reports matching "{query}". Try adjusting your search terms or filters.
               </p>
             </div>
