@@ -41,6 +41,21 @@ export default function Navbar() {
 
   const isActive = (href: string) => pathname === href;
 
+  useEffect(() => {
+    if (user && !notifFetched) {
+      const saved = localStorage.getItem('foundit_geofence');
+      const geo = saved ? JSON.parse(saved) : null;
+      if (geo) {
+        notificationApi.check(geo.latitude, geo.longitude, geo.radius)
+          .then((data) => {
+            setNearbyReports(data.reports || []);
+            setNotifFetched(true);
+          })
+          .catch(() => setNearbyReports([]));
+      }
+    }
+  }, [user, notifFetched]);
+
   return (
     <nav className="sticky top-0 z-50 bg-white/40 backdrop-blur-xl border-b border-white/40 shadow-sm">
       <div className="w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12">
