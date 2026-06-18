@@ -181,7 +181,7 @@ export default function LandingPage() {
               {/* Step 2 */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:-translate-y-1 transition-transform duration-300">
                 <div className="h-48 bg-slate-100 w-full relative">
-                  <img alt="Search" className="w-full h-full object-cover opacity-80" src="https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=600&auto=format&fit=crop"/>
+                  <img alt="Search" className="w-full h-full object-cover opacity-80" src="https://images.unsplash.com/photo-1478860409681-4b130761e389?q=80&w=600&auto=format&fit=crop"/>
                 </div>
                 <div className="p-6 text-left space-y-4">
                   <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
@@ -215,7 +215,7 @@ export default function LandingPage() {
           {/* Community Section */}
           <section id="community" className="flex flex-col md:flex-row items-center gap-12 pt-12">
             <div className="flex-1 w-full">
-              <img alt="Community" className="w-full h-full object-cover rounded-[2rem] shadow-xl" src="https://images.unsplash.com/photo-1529156069898-49953eb1f5bc?q=80&w=800&auto=format&fit=crop"/>
+              <img alt="Community" className="w-full h-full object-cover rounded-[2rem] shadow-xl" src="/community.png"/>
             </div>
             <div className="flex-1 space-y-6">
               <div className="text-sm font-bold text-emerald-600 tracking-widest uppercase">Trust & Community</div>
