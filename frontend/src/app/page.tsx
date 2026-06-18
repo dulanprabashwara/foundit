@@ -131,10 +131,10 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="flex-1 relative w-full flex justify-center items-center lg:justify-end pl-0 lg:pl-12">
+            <div className="flex-1 relative w-full flex justify-center items-center lg:justify-end pl-0 lg:pl-24">
               <img 
                 alt="FoundIt Platform" 
-                className="w-full max-w-2xl object-contain mix-blend-multiply translate-x-4 md:translate-x-8" 
+                className="w-full max-w-2xl object-contain mix-blend-multiply translate-x-8 md:translate-x-16 lg:translate-x-12" 
                 src="/picture.png"
               />
             </div>
