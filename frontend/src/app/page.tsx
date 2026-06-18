@@ -101,7 +101,7 @@ export default function LandingPage() {
         <div className="w-full max-w-7xl px-4 md:px-10 space-y-24">
           
           {/* Hero Section */}
-          <section className="flex flex-col md:flex-row items-center gap-12 pt-8 md:pt-16">
+          <section className="flex flex-col md:flex-row items-center gap-12 pt-0">
             <div className="flex-1 space-y-6 text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full text-primary-600 font-semibold text-xs tracking-wider uppercase">
                 <Info className="w-4 h-4" />
