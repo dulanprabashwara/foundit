@@ -47,7 +47,12 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
-            <img src="/logo.png" alt="FoundIt Logo" className="w-9 h-9 object-contain" />
+            <div className="relative">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25 group-hover:shadow-primary-500/40 transition-shadow">
+                <Search className="w-5 h-5 text-white" strokeWidth={2.5} />
+              </div>
+              <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white" />
+            </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">
               FoundIt
             </span>

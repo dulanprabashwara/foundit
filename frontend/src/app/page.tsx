@@ -279,7 +279,7 @@ export default function LandingPage() {
           {/* Brand Column */}
           <div className="col-span-1 md:col-span-1 space-y-4">
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="FoundIt Logo" className="w-8 h-8 object-contain brightness-0 invert" />
+              <MapPin className="text-primary-400 w-8 h-8" />
               <span className="text-2xl font-bold text-white">FoundIt</span>
             </div>
             <p className="text-sm text-slate-400">
@@ -342,7 +342,9 @@ export default function LandingPage() {
 
             <div className="p-8">
               <div className="flex justify-center mb-6">
-                <img src="/logo.png" alt="FoundIt Logo" className="w-12 h-12 object-contain" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                  <Search className="w-6 h-6 text-white" strokeWidth={2.5} />
+                </div>
               </div>
 
               <div className="text-center mb-8">
