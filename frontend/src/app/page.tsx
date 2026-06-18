@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { MapPin, Mail, Lock, User, Eye, EyeOff, ArrowRight, Search, Info, AddLocation, TravelExplore, CheckCircle, Shield, Groups, SyncAlt, Share, Key } from 'lucide-react';
+import { MapPin, Mail, Lock, User, Eye, EyeOff, ArrowRight, Search, Info, Compass, CheckCircle2, Shield, Users, RefreshCw, Share, Key } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -200,7 +200,7 @@ export default function LandingPage() {
                 </div>
                 <div className="p-6 text-left space-y-4">
                   <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6" />
+                    <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <div>
                     <h4 className="text-xl font-bold text-slate-900">Step 3: Recover</h4>
@@ -233,13 +233,13 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                    <Groups className="w-6 h-6" />
+                    <Users className="w-6 h-6" />
                   </div>
                   <span className="text-lg font-medium text-slate-900">Users connect directly with finders</span>
                 </li>
                 <li className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                    <SyncAlt className="w-6 h-6" />
+                    <RefreshCw className="w-6 h-6" />
                   </div>
                   <span className="text-lg font-medium text-slate-900">Secure and structured recovery process</span>
                 </li>
@@ -252,7 +252,7 @@ export default function LandingPage() {
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
             <div className="relative z-10 space-y-6 max-w-xl mx-auto">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium border border-white/30">
-                <Groups className="w-4 h-4" />
+                <Users className="w-4 h-4" />
                 Join thousands recovering their items
               </div>
               <h2 className="text-3xl md:text-4xl font-bold">
