@@ -53,9 +53,25 @@ router.post('/check', authenticate, async (req, res) => {
       .filter((report) => report.distance <= maxDistance)
       .sort((a, b) => a.distance - b.distance);
 
+    // Fetch recent comments by others on the user's reports
+    const comments = await prisma.comment.findMany({
+      where: {
+        report: { authorId: req.user.uid },
+        authorId: { not: req.user.uid },
+        ...(since ? { createdAt: { gte: new Date(since) } } : {})
+      },
+      include: {
+        report: { select: { id: true, title: true } },
+        author: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10
+    });
+
     res.json({
-      count: reports.length,
+      count: reports.length + comments.length,
       reports,
+      comments,
     });
   } catch (error) {
     console.error('Notification check error:', error);

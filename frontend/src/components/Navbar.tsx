@@ -29,6 +29,7 @@ export default function Navbar() {
   const [profileDropdown, setProfileDropdown] = useState(false);
   const [notificationsDropdown, setNotificationsDropdown] = useState(false);
   const [nearbyReports, setNearbyReports] = useState<any[]>([]);
+  const [commentNotifs, setCommentNotifs] = useState<any[]>([]);
   const [notifLoading, setNotifLoading] = useState(false);
   const [notifFetched, setNotifFetched] = useState(false);
 
@@ -49,9 +50,13 @@ export default function Navbar() {
         notificationApi.check(geo.latitude, geo.longitude, geo.radius)
           .then((data) => {
             setNearbyReports(data.reports || []);
+            setCommentNotifs(data.comments || []);
             setNotifFetched(true);
           })
-          .catch(() => setNearbyReports([]));
+          .catch(() => {
+            setNearbyReports([]);
+            setCommentNotifs([]);
+          });
       }
     }
   }, [user, notifFetched]);
@@ -100,16 +105,20 @@ export default function Navbar() {
                     notificationApi.check(geo.latitude, geo.longitude, geo.radius)
                       .then((data) => {
                         setNearbyReports(data.reports || []);
+                        setCommentNotifs(data.comments || []);
                         setNotifFetched(true);
                       })
-                      .catch(() => setNearbyReports([]))
+                      .catch(() => {
+                        setNearbyReports([]);
+                        setCommentNotifs([]);
+                      })
                       .finally(() => setNotifLoading(false));
                   }
                 }}
                 className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
               >
                 <Bell className="w-5 h-5" />
-                {nearbyReports.length > 0 && (
+                {(nearbyReports.length > 0 || commentNotifs.length > 0) && (
                   <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full ring-2 ring-white" />
                 )}
               </button>
@@ -120,7 +129,7 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
                     <div className="px-4 py-3 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
                       <h3 className="text-sm font-bold text-slate-800">Notifications</h3>
-                      <span className="text-xs font-medium text-primary-600">{nearbyReports.length} nearby</span>
+                      <span className="text-xs font-medium text-primary-600">{nearbyReports.length + commentNotifs.length} new</span>
                     </div>
                     
                     <div className="max-h-[400px] overflow-y-auto">
@@ -128,35 +137,55 @@ export default function Navbar() {
                         <div className="flex justify-center py-8">
                           <Loader2 className="w-5 h-5 animate-spin text-primary-500" />
                         </div>
-                      ) : nearbyReports.length === 0 ? (
+                      ) : (nearbyReports.length === 0 && commentNotifs.length === 0) ? (
                         <div className="text-center py-8 px-4">
                           <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
-                          <p className="text-sm text-slate-400">No nearby reports in your area</p>
-                          <p className="text-xs text-slate-300 mt-1">Set up your geofence in Profile settings</p>
+                          <p className="text-sm text-slate-400">No new notifications</p>
                         </div>
                       ) : (
-                        nearbyReports.slice(0, 5).map((report: any) => (
-                          <div
-                            key={report.id}
-                            onClick={() => {
-                              setNotificationsDropdown(false);
-                              router.push(`/report/${report.id}`);
-                            }}
-                            className="px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3"
-                          >
-                            <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center shrink-0 mt-0.5">
-                              <MapPin className="w-4 h-4 text-rose-600" />
+                        <>
+                          {commentNotifs.slice(0, 5).map((comment: any) => (
+                            <div
+                              key={`comment-${comment.id}`}
+                              onClick={() => {
+                                setNotificationsDropdown(false);
+                                router.push(`/report/${comment.report.id}`);
+                              }}
+                              className="px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3"
+                            >
+                              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
+                                <MessageSquare className="w-4 h-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <p className="text-sm text-slate-800">
+                                  <span className="font-semibold">{comment.author?.name || 'Someone'}</span> commented on your report: <span className="font-medium">{comment.report.title}</span>
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-sm text-slate-800">
-                                <span className="font-semibold">{report.title}</span>
-                              </p>
-                              <p className="text-xs text-slate-500 mt-1">
-                                {report.distance}km away • by {report.author?.name || 'Unknown'}
-                              </p>
+                          ))}
+                          {nearbyReports.slice(0, 5).map((report: any) => (
+                            <div
+                              key={`report-${report.id}`}
+                              onClick={() => {
+                                setNotificationsDropdown(false);
+                                router.push(`/report/${report.id}`);
+                              }}
+                              className="px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3"
+                            >
+                              <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center shrink-0 mt-0.5">
+                                <MapPin className="w-4 h-4 text-rose-600" />
+                              </div>
+                              <div>
+                                <p className="text-sm text-slate-800">
+                                  <span className="font-semibold">{report.title}</span>
+                                </p>
+                                <p className="text-xs text-slate-500 mt-1">
+                                  {report.distance}km away • by {report.author?.name || 'Unknown'}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        ))
+                          ))}
+                        </>
                       )}
                     </div>
                     
