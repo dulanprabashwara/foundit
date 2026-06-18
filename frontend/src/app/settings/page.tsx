@@ -230,8 +230,8 @@ export default function ProfilePage() {
                 <input type="file" id="profile-upload" accept="image/*" className="hidden" onChange={handlePhotoChange} />
               )}
               <label htmlFor={isEditingProfile ? "profile-upload" : undefined} className={`w-full h-full rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-semibold overflow-hidden relative ${isEditingProfile ? 'cursor-pointer' : ''}`}>
-                {photoUrl ? (
-                  <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                {(photoUrl || user?.photoURL) ? (
+                  <img src={photoUrl || user?.photoURL || ''} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                   fullName.charAt(0).toUpperCase()
                 )}
