@@ -126,7 +126,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => openAuth(true)}
-              className="hidden md:flex items-center justify-center bg-primary-600 text-white font-medium px-6 py-2 rounded-full hover:bg-primary-700 transition-colors"
+              className="flex items-center justify-center bg-primary-600 text-white font-medium px-5 py-2 md:px-6 rounded-full hover:bg-primary-700 transition-colors text-sm md:text-base"
             >
               Sign In
             </button>
@@ -135,7 +135,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-grow pt-20 pb-24 md:pb-32 flex flex-col items-center w-full">
+      <main className="grow pt-20 pb-24 md:pb-32 flex flex-col items-center w-full overflow-hidden">
         <div className="w-full max-w-7xl px-4 md:px-10 space-y-24">
           
           {/* Hero Section */}
@@ -169,10 +169,10 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="flex-1 relative w-full flex justify-center items-center lg:justify-end pl-0 lg:pl-24">
+            <div className="flex-1 relative w-full flex justify-center items-center lg:justify-end pl-0 lg:pl-12">
               <img 
                 alt="FoundIt Platform" 
-                className="w-full max-w-2xl object-contain mix-blend-multiply translate-x-8 md:translate-x-16 lg:translate-x-12" 
+                className="w-full max-w-xl object-contain mix-blend-multiply" 
                 src="/picture.png"
               />
             </div>
@@ -240,7 +240,7 @@ export default function LandingPage() {
           {/* Community Section */}
           <section id="community" className="flex flex-col md:flex-row items-center gap-12 pt-12">
             <div className="flex-1 w-full">
-              <img alt="Community" className="w-full h-full object-cover rounded-[2rem] shadow-xl" src="/community.png"/>
+              <img alt="Community" className="w-full h-full object-cover rounded-4xl shadow-xl" src="/community.png"/>
             </div>
             <div className="flex-1 space-y-6">
               <div className="text-sm font-bold text-emerald-600 tracking-widest uppercase">Trust & Community</div>
@@ -274,7 +274,7 @@ export default function LandingPage() {
           </section>
 
           {/* CTA Banner */}
-          <section className="w-full bg-gradient-to-br from-primary-600 to-primary-800 rounded-[2rem] p-8 md:p-16 text-center text-white shadow-xl relative overflow-hidden">
+          <section className="w-full bg-linear-to-br from-primary-600 to-primary-800 rounded-4xl p-8 md:p-16 text-center text-white shadow-xl relative overflow-hidden">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
             <div className="relative z-10 space-y-6 max-w-xl mx-auto">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium border border-white/30">
@@ -355,7 +355,7 @@ export default function LandingPage() {
       {/* Auth Modal Overlay */}
       {showAuthModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden relative animate-fade-in-up">
+          <div className="bg-white rounded-4xl shadow-2xl w-full max-w-md overflow-hidden relative animate-fade-in-up">
             
             {/* Close Button */}
             <button 
@@ -367,7 +367,7 @@ export default function LandingPage() {
 
             <div className="p-8">
               <div className="flex justify-center mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25">
                   <Search className="w-6 h-6 text-white" strokeWidth={2.5} />
                 </div>
               </div>
