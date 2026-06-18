@@ -81,7 +81,8 @@ export default function LandingPage() {
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-8">
             <a className="text-slate-500 font-medium hover:text-primary-600 transition-colors" href="#how-it-works">How It Works</a>
-            <a className="text-slate-500 font-medium hover:text-primary-600 transition-colors" href="#community">Community</a>
+            <button onClick={() => openAuth(true)} className="text-slate-500 font-medium hover:text-primary-600 transition-colors">Post an Item</button>
+            <button onClick={() => openAuth(true)} className="text-slate-500 font-medium hover:text-primary-600 transition-colors">Search Items</button>
           </div>
           {/* Actions */}
           <div className="flex items-center gap-4">
