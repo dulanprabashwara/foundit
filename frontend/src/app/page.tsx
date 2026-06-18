@@ -75,7 +75,7 @@ export default function LandingPage() {
         <div className="w-full max-w-7xl flex items-center justify-between mx-auto">
           {/* Brand */}
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="FoundIt Logo" className="w-8 h-8 object-contain" />
+            <MapPin className="text-primary-600 w-8 h-8" />
             <span className="text-2xl font-bold text-primary-600">FoundIt</span>
           </div>
           {/* Desktop Links */}
@@ -131,25 +131,12 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="flex-1 relative w-full aspect-square md:aspect-auto md:h-100">
-              {/* Main Image */}
-              <div className="absolute inset-0 bg-slate-200 rounded-[3rem] shadow-xl overflow-hidden border-8 border-white">
-                <img 
-                  alt="FoundIt Platform" 
-                  className="w-full h-full object-cover" 
-                  src="/found-it.png"
-                />
-              </div>
-              {/* Decorative Floating Circles */}
-              <div className="absolute top-4 -left-4 w-24 h-24 rounded-full bg-emerald-100 shadow-xl border-4 border-white overflow-hidden z-10">
-                <img alt="Lost pet" className="w-full h-full object-cover" src="/pet.png"/>
-              </div>
-              <div className="absolute bottom-12 -right-6 w-32 h-32 rounded-full bg-amber-100 shadow-xl border-4 border-white overflow-hidden z-10">
-                <img alt="Lost backpack" className="w-full h-full object-cover" src="/bag.png"/>
-              </div>
-              <div className="absolute -top-8 right-12 w-20 h-20 rounded-full bg-white shadow-xl border-4 border-white overflow-hidden flex items-center justify-center z-10">
-                <img alt="Key icon" className="w-full h-full object-cover" src="/key.png"/>
-              </div>
+            <div className="flex-1 relative w-full flex justify-center items-center">
+              <img 
+                alt="FoundIt Platform" 
+                className="w-full max-w-2xl object-contain drop-shadow-xl" 
+                src="/logo.png"
+              />
             </div>
           </section>
 
