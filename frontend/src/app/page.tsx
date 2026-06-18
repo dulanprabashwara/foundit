@@ -325,9 +325,9 @@ export default function LandingPage() {
           <div className="space-y-4">
             <h4 className="text-base font-semibold text-white">Company</h4>
             <ul className="space-y-2 text-sm text-slate-400">
-              <li><a className="hover:text-white transition-colors" href="#">About Us</a></li>
-              <li><a className="hover:text-white transition-colors" href="#">Our Mission</a></li>
-              <li><a className="hover:text-white transition-colors" href="#">Contact</a></li>
+              <li><Link className="hover:text-white transition-colors" href="/about">About Us</Link></li>
+              <li><Link className="hover:text-white transition-colors" href="/mission">Our Mission</Link></li>
+              <li><a className="hover:text-white transition-colors" href="mailto:dulanprabashwara@gmail.com">Contact</a></li>
             </ul>
           </div>
           {/* Social/More */}
@@ -337,7 +337,7 @@ export default function LandingPage() {
               <a className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors" href="#">
                 <Share className="w-4 h-4" />
               </a>
-              <a className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors" href="#">
+              <a className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors" href="mailto:dulanprabashwara@gmail.com">
                 <Mail className="w-4 h-4" />
               </a>
             </div>
