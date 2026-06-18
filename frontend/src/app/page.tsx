@@ -131,13 +131,13 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="flex-1 relative w-full aspect-square md:aspect-auto md:h-[400px]">
+            <div className="flex-1 relative w-full aspect-square md:aspect-auto md:h-100">
               {/* Main Image */}
-              <div className="absolute inset-0 bg-slate-200 rounded-[3rem] shadow-xl overflow-hidden border-8 border-white">
+              <div className="absolute inset-0 bg-slate-200 rounded-[50%] shadow-xl overflow-hidden border-8 border-white">
                 <img 
-                  alt="City background" 
-                  className="w-full h-full object-cover opacity-90 mix-blend-multiply" 
-                  src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1000&auto=format&fit=crop"
+                  alt="FoundIt Platform" 
+                  className="w-full h-full object-cover" 
+                  src="/found-it.png"
                 />
               </div>
               {/* Decorative Floating Circles */}
