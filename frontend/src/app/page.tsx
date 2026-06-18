@@ -7,7 +7,7 @@ import { MapPin, Mail, Lock, User, Eye, EyeOff, ArrowRight, Search, Info, Compas
 import Link from 'next/link';
 
 export default function LandingPage() {
-  const { user, loading: authLoading, signIn, signUp, signInWithGoogle } = useAuth();
+  const { user, loading: authLoading, signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
   const router = useRouter();
 
   // Auth Modal State
@@ -18,6 +18,7 @@ export default function LandingPage() {
   const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -63,10 +64,30 @@ export default function LandingPage() {
   const handleGoogleSignIn = async () => {
     try {
       setError('');
+      setSuccess('');
       await signInWithGoogle();
       router.push('/dashboard');
     } catch (err: any) {
       setError(err.message?.replace('Firebase: ', '') || 'Google sign-in failed');
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email.trim()) {
+      setError('Please enter your email address to reset password');
+      setSuccess('');
+      return;
+    }
+    try {
+      setLoading(true);
+      setError('');
+      await resetPassword(email.trim());
+      setSuccess('Password reset link sent to your email!');
+    } catch (err: any) {
+      setError(err.message?.replace('Firebase: ', '') || 'Failed to send reset email');
+      setSuccess('');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -419,7 +440,18 @@ export default function LandingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-medium text-slate-700">Password</label>
+                    {isLogin && (
+                      <button
+                        type="button"
+                        onClick={handleResetPassword}
+                        className="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+                      >
+                        Forgot password?
+                      </button>
+                    )}
+                  </div>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
                     <input
@@ -446,6 +478,12 @@ export default function LandingPage() {
                     {error}
                   </div>
                 )}
+                
+                {success && (
+                  <div className="px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-600 animate-fade-in">
+                    {success}
+                  </div>
+                )}
 
                 <button
                   type="submit"
@@ -469,6 +507,7 @@ export default function LandingPage() {
                   onClick={() => {
                     setIsLogin(!isLogin);
                     setError('');
+                    setSuccess('');
                   }}
                   className="font-semibold text-primary-600 hover:text-primary-700 transition-colors"
                 >
