@@ -49,6 +49,7 @@ export default function ReportDetailPage() {
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const [editPosition, setEditPosition] = useState<[number, number] | null>(null);
   const [editSaving, setEditSaving] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
   const [locationName, setLocationName] = useState<string>('Loading location...');
 
   useEffect(() => {
@@ -104,9 +105,10 @@ export default function ReportDetailPage() {
 
     setCommentLoading(true);
     try {
-      const comment = await commentApi.create(reportId, newComment.trim());
+      const comment = await commentApi.create(reportId, newComment.trim(), replyingTo?.id || undefined);
       setComments([...comments, comment]);
       setNewComment('');
+      setReplyingTo(null);
     } catch (err: any) {
       setError(err.message || 'Failed to add comment');
     } finally {
@@ -495,51 +497,116 @@ export default function ReportDetailPage() {
                   <p className="text-sm text-slate-400">No comments yet. Be the first to comment!</p>
                 </div>
               ) : (
-                <div className="space-y-4 mb-6">
-                  {comments.map((comment) => (
-                    <div key={comment.id} className="flex gap-3 animate-fade-in">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden relative">
-                        <span className="relative z-0">{comment.author.name[0]?.toUpperCase()}</span>
-                        <img 
-                          src={userApi.getImageUrl(comment.authorId)} 
-                          alt={comment.author.name} 
-                          className="absolute inset-0 z-10 w-full h-full object-cover bg-white"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-slate-700">
-                            {comment.author.name}
-                          </span>
-                          <span className="text-xs text-slate-400">
-                            {new Date(comment.createdAt).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </span>
-                          {comment.authorId === user?.uid && (
-                            <button
-                              onClick={() => handleDeleteComment(comment.id)}
-                              className="ml-auto text-slate-400 hover:text-rose-500 transition-colors"
-                              title="Delete comment"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
+                <div className="space-y-6 mb-6">
+                  {comments.filter(c => !c.parentId).map((comment) => (
+                    <div key={comment.id} className="animate-fade-in">
+                      {/* Main comment */}
+                      <div className="flex gap-3">
+                        <div className="shrink-0 w-8 h-8 rounded-lg bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden relative">
+                          <span className="relative z-0">{comment.author.name[0]?.toUpperCase()}</span>
+                          <img 
+                            src={userApi.getImageUrl(comment.authorId)} 
+                            alt={comment.author.name} 
+                            className="absolute inset-0 z-10 w-full h-full object-cover bg-white"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
                         </div>
-                        <p className="text-sm text-slate-600 leading-relaxed">{comment.text}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-semibold text-slate-700">
+                              {comment.author.name}
+                            </span>
+                            <span className="text-xs text-slate-400">
+                              {new Date(comment.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                            <div className="ml-auto flex items-center gap-2">
+                              <button
+                                onClick={() => setReplyingTo(comment)}
+                                className="text-xs text-primary-600 font-semibold hover:text-primary-700 transition-colors"
+                              >
+                                Reply
+                              </button>
+                              {comment.authorId === user?.uid && (
+                                <button
+                                  onClick={() => handleDeleteComment(comment.id)}
+                                  className="text-slate-400 hover:text-rose-500 transition-colors"
+                                  title="Delete comment"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-sm text-slate-600 leading-relaxed">{comment.text}</p>
+                        </div>
                       </div>
+
+                      {/* Replies */}
+                      {comments.filter(r => r.parentId === comment.id).length > 0 && (
+                        <div className="mt-3 ml-11 space-y-3">
+                          {comments.filter(r => r.parentId === comment.id).map(reply => (
+                            <div key={reply.id} className="flex gap-3 animate-fade-in relative before:absolute before:-left-6 before:top-4 before:w-4 before:h-px before:bg-slate-200">
+                              <div className="shrink-0 w-6 h-6 rounded-lg bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden relative">
+                                <span className="relative z-0">{reply.author.name[0]?.toUpperCase()}</span>
+                                <img 
+                                  src={userApi.getImageUrl(reply.authorId)} 
+                                  alt={reply.author.name} 
+                                  className="absolute inset-0 z-10 w-full h-full object-cover bg-white"
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-xs font-semibold text-slate-700">
+                                    {reply.author.name}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400">
+                                    {new Date(reply.createdAt).toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })}
+                                  </span>
+                                  {reply.authorId === user?.uid && (
+                                    <button
+                                      onClick={() => handleDeleteComment(reply.id)}
+                                      className="ml-auto text-slate-400 hover:text-rose-500 transition-colors"
+                                      title="Delete reply"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-600 leading-relaxed">{reply.text}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               )}
 
               {/* Add comment */}
-              <form onSubmit={handleAddComment} className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
+              {replyingTo && (
+                <div className="flex items-center justify-between bg-primary-50 px-4 py-2 rounded-t-xl border-x border-t border-primary-100 -mb-px relative z-10">
+                  <span className="text-xs font-medium text-primary-700">
+                    Replying to <span className="font-bold">{replyingTo.author.name}</span>
+                  </span>
+                  <button onClick={() => setReplyingTo(null)} className="text-primary-500 hover:text-primary-700">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+              <form onSubmit={handleAddComment} className={`flex gap-3 ${replyingTo ? 'pt-3 border-t border-primary-100' : ''}`}>
+                <div className="shrink-0 w-8 h-8 rounded-lg bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
                   {user?.photoURL ? (
                     <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
                   ) : (

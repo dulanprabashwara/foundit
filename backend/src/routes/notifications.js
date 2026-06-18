@@ -53,16 +53,25 @@ router.post('/check', authenticate, async (req, res) => {
       .filter((report) => report.distance <= maxDistance)
       .sort((a, b) => a.distance - b.distance);
 
-    // Fetch recent comments by others on the user's reports
+    // Fetch recent comments by others on the user's reports, OR replies to user's comments
     const comments = await prisma.comment.findMany({
       where: {
-        report: { authorId: req.user.uid },
-        authorId: { not: req.user.uid },
+        OR: [
+          {
+            report: { authorId: req.user.uid },
+            authorId: { not: req.user.uid },
+          },
+          {
+            parent: { authorId: req.user.uid },
+            authorId: { not: req.user.uid },
+          }
+        ],
         ...(since ? { createdAt: { gte: new Date(since) } } : {})
       },
       include: {
         report: { select: { id: true, title: true } },
         author: { select: { id: true, name: true } },
+        parent: { select: { authorId: true } }
       },
       orderBy: { createdAt: 'desc' },
       take: 10

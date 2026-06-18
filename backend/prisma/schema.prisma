@@ -45,10 +45,15 @@ model Comment {
   reportId  String
   report    Report   @relation(fields: [reportId], references: [id])
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
+  author    User      @relation(fields: [authorId], references: [id])
+  
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
 
   @@index([reportId])
   @@index([authorId])
+  @@index([parentId])
 }
 
 enum Category {

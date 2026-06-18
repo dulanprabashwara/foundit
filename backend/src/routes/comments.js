@@ -7,7 +7,7 @@ const router = express.Router();
 // POST /api/comments - Create a comment on a report
 router.post('/', authenticate, async (req, res) => {
   try {
-    const { text, reportId } = req.body;
+    const { text, reportId, parentId } = req.body;
 
     if (!text || !reportId) {
       return res.status(400).json({ error: 'Text and reportId are required' });
@@ -26,6 +26,7 @@ router.post('/', authenticate, async (req, res) => {
       data: {
         text,
         reportId,
+        parentId: parentId || null,
         authorId: req.user.uid,
       },
       include: {

@@ -91,11 +91,11 @@ export const reportApi = {
 export const commentApi = {
   list: (reportId: string) => apiRequest(`/comments/${reportId}`),
 
-  create: (reportId: string, text: string) =>
+  create: (reportId: string, text: string, parentId?: string) =>
     apiRequest('/comments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reportId, text }),
+      body: JSON.stringify({ reportId, text, parentId }),
     }),
 
   delete: (id: string) =>

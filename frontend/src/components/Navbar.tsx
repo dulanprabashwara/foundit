@@ -158,7 +158,9 @@ export default function Navbar() {
                               </div>
                               <div>
                                 <p className="text-sm text-slate-800">
-                                  <span className="font-semibold">{comment.author?.name || 'Someone'}</span> commented on your report: <span className="font-medium">{comment.report.title}</span>
+                                  <span className="font-semibold">{comment.author?.name || 'Someone'}</span> 
+                                  {comment.parent?.authorId === user?.uid ? ' replied to your comment on: ' : ' commented on your report: '}
+                                  <span className="font-medium">{comment.report.title}</span>
                                 </p>
                               </div>
                             </div>

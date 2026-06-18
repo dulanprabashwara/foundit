@@ -27,6 +27,7 @@ export interface Comment {
   createdAt: string;
   reportId: string;
   authorId: string;
+  parentId?: string | null;
   author: {
     id: string;
     name: string;
