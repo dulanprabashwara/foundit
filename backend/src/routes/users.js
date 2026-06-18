@@ -48,7 +48,12 @@ router.get('/me', authenticate, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.uid },
-      include: {
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        hasPhoto: true,
         _count: {
           select: { reports: true, comments: true },
         },
@@ -59,8 +64,7 @@ router.get('/me', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const { photoData, ...rest } = user;
-    res.json({ ...rest, hasPhoto: !!photoData });
+    res.json(user);
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ error: 'Failed to fetch user' });
@@ -75,7 +79,10 @@ router.patch('/me', authenticate, upload.single('image'), async (req, res) => {
     const updateData = {};
     if (name) updateData.name = name;
     if (phone !== undefined) updateData.phone = phone; // Allow empty string to clear
-    if (req.file) updateData.photoData = req.file.buffer;
+    if (req.file) {
+      updateData.photoData = req.file.buffer;
+      updateData.hasPhoto = true;
+    }
 
     const user = await prisma.user.upsert({
       where: { id: req.user.uid },
@@ -86,11 +93,18 @@ router.patch('/me', authenticate, upload.single('image'), async (req, res) => {
         name: name || req.user.name || (req.user.email ? req.user.email.split('@')[0] : 'Unknown User'),
         phone: phone || null,
         photoData: req.file ? req.file.buffer : null,
+        hasPhoto: !!req.file,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        hasPhoto: true,
       },
     });
 
-    const { photoData, ...rest } = user;
-    res.json({ ...rest, hasPhoto: !!photoData });
+    res.json(user);
   } catch (error) {
     console.error('Update user error:', error);
     res.status(500).json({ error: `Failed to update user: ${error.message}` });

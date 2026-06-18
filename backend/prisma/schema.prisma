@@ -12,6 +12,7 @@ model User {
   name      String
   phone     String?
   photoData Bytes?
+  hasPhoto  Boolean   @default(false)
   reports   Report[]
   comments Comment[]
 }
@@ -26,10 +27,15 @@ model Report {
   latitude    Float
   longitude   Float
   imageData   Bytes?   // Raw binary image data stored in PostgreSQL
+  hasImage    Boolean  @default(false) // Optimize queries without loading raw image
   createdAt   DateTime @default(now())
   authorId    String
   author      User     @relation(fields: [authorId], references: [id])
   comments    Comment[]
+
+  @@index([authorId])
+  @@index([status])
+  @@index([category])
 }
 
 model Comment {
@@ -40,6 +46,9 @@ model Comment {
   report    Report   @relation(fields: [reportId], references: [id])
   authorId  String
   author    User     @relation(fields: [authorId], references: [id])
+
+  @@index([reportId])
+  @@index([authorId])
 }
 
 enum Category {

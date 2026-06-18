@@ -24,19 +24,25 @@ router.get('/user/me', authenticate, async (req, res) => {
   try {
     const reports = await prisma.report.findMany({
       where: { authorId: req.user.uid },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        type: true,
+        status: true,
+        latitude: true,
+        longitude: true,
+        hasImage: true,
+        createdAt: true,
+        authorId: true,
         author: { select: { id: true, name: true, email: true } },
         _count: { select: { comments: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    const reportsWithoutImageData = reports.map(({ imageData, ...rest }) => ({
-      ...rest,
-      hasImage: !!imageData,
-    }));
-
-    res.json(reportsWithoutImageData);
+    res.json(reports);
   } catch (error) {
     console.error('Get user reports error:', error);
     res.status(500).json({ error: 'Failed to fetch user reports' });
@@ -66,7 +72,18 @@ router.get('/', optionalAuth, async (req, res) => {
 
     let reports = await prisma.report.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        type: true,
+        status: true,
+        latitude: true,
+        longitude: true,
+        hasImage: true,
+        createdAt: true,
+        authorId: true,
         author: { select: { id: true, name: true, email: true } },
         _count: { select: { comments: true } },
       },
@@ -90,13 +107,7 @@ router.get('/', optionalAuth, async (req, res) => {
       });
     }
 
-    // Strip binary imageData from list response (return flag instead)
-    const reportsWithoutImageData = reports.map(({ imageData, ...rest }) => ({
-      ...rest,
-      hasImage: !!imageData,
-    }));
-
-    res.json(reportsWithoutImageData);
+    res.json(reports);
   } catch (error) {
     console.error('List reports error:', error);
     res.status(500).json({ error: 'Failed to fetch reports' });
@@ -108,7 +119,18 @@ router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const report = await prisma.report.findUnique({
       where: { id: req.params.id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        type: true,
+        status: true,
+        latitude: true,
+        longitude: true,
+        hasImage: true,
+        createdAt: true,
+        authorId: true,
         author: { select: { id: true, name: true, email: true } },
         comments: {
           include: {
@@ -123,9 +145,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
       return res.status(404).json({ error: 'Report not found' });
     }
 
-    // Strip binary data, return hasImage flag
-    const { imageData, ...rest } = report;
-    res.json({ ...rest, hasImage: !!imageData });
+    res.json(report);
   } catch (error) {
     console.error('Get report error:', error);
     res.status(500).json({ error: 'Failed to fetch report' });
@@ -193,15 +213,26 @@ router.post('/', authenticate, upload.single('image'), async (req, res) => {
         latitude: parseFloat(latitude),
         longitude: parseFloat(longitude),
         imageData: req.file ? req.file.buffer : null,
+        hasImage: !!req.file,
         authorId: req.user.uid,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        type: true,
+        status: true,
+        latitude: true,
+        longitude: true,
+        hasImage: true,
+        createdAt: true,
+        authorId: true,
         author: { select: { id: true, name: true, email: true } },
       },
     });
 
-    const { imageData, ...rest } = report;
-    res.status(201).json({ ...rest, hasImage: !!imageData });
+    res.status(201).json(report);
   } catch (error) {
     console.error('Create report error:', error);
     res.status(500).json({ error: 'Failed to create report' });
@@ -234,13 +265,23 @@ router.patch('/:id/status', authenticate, async (req, res) => {
     const report = await prisma.report.update({
       where: { id: req.params.id },
       data: { status },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        type: true,
+        status: true,
+        latitude: true,
+        longitude: true,
+        hasImage: true,
+        createdAt: true,
+        authorId: true,
         author: { select: { id: true, name: true, email: true } },
       },
     });
 
-    const { imageData, ...rest } = report;
-    res.json({ ...rest, hasImage: !!imageData });
+    res.json(report);
   } catch (error) {
     console.error('Update report status error:', error);
     res.status(500).json({ error: 'Failed to update report status' });
@@ -274,12 +315,26 @@ router.patch('/:id', authenticate, upload.single('image'), async (req, res) => {
     if (category && validCategories.includes(category)) updateData.category = category;
     if (latitude) updateData.latitude = parseFloat(latitude);
     if (longitude) updateData.longitude = parseFloat(longitude);
-    if (req.file) updateData.imageData = req.file.buffer;
+    if (req.file) {
+      updateData.imageData = req.file.buffer;
+      updateData.hasImage = true;
+    }
 
     const report = await prisma.report.update({
       where: { id: req.params.id },
       data: updateData,
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        type: true,
+        status: true,
+        latitude: true,
+        longitude: true,
+        hasImage: true,
+        createdAt: true,
+        authorId: true,
         author: { select: { id: true, name: true, email: true } },
         comments: {
           include: {
@@ -290,8 +345,7 @@ router.patch('/:id', authenticate, upload.single('image'), async (req, res) => {
       },
     });
 
-    const { imageData, ...rest } = report;
-    res.json({ ...rest, hasImage: !!imageData });
+    res.json(report);
   } catch (error) {
     console.error('Edit report error:', error);
     res.status(500).json({ error: 'Failed to edit report' });
