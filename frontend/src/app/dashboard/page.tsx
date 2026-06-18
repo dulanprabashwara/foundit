@@ -18,6 +18,7 @@ import {
   AlertCircle,
   RefreshCw,
   SlidersHorizontal,
+  CheckCircle2,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -33,6 +34,7 @@ export default function DashboardPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
+  const [showReportTypeModal, setShowReportTypeModal] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -238,7 +240,7 @@ export default function DashboardPage() {
                 : 'There are no active reports yet. Be the first to report a lost item!'}
             </p>
             <button
-              onClick={() => router.push('/report/new')}
+              onClick={() => setShowReportTypeModal(true)}
               className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/25"
             >
               Report an Item
@@ -306,7 +308,7 @@ export default function DashboardPage() {
 
       {/* Floating Action Button */}
       <button
-        onClick={() => router.push('/report/new')}
+        onClick={() => setShowReportTypeModal(true)}
         className="fixed bottom-8 right-8 w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/30 hover:bg-indigo-700 hover:scale-105 transition-all z-40"
         title="Report an item"
       >
@@ -314,6 +316,48 @@ export default function DashboardPage() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
       </button>
+
+      {/* Report Type Modal */}
+      {showReportTypeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-slide-up relative">
+            <button
+              onClick={() => setShowReportTypeModal(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="p-8">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2 text-center">What are you reporting?</h2>
+              <p className="text-sm text-slate-500 mb-8 text-center">Help the community by choosing the right category</p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => router.push('/report/new?type=LOST')}
+                  className="flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border-2 border-slate-100 hover:border-rose-500 hover:bg-rose-50 transition-all group"
+                >
+                  <div className="w-16 h-16 rounded-full bg-rose-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Search className="w-8 h-8 text-rose-600" />
+                  </div>
+                  <span className="font-semibold text-slate-700 group-hover:text-rose-700">Lost Item</span>
+                </button>
+                
+                <button
+                  onClick={() => router.push('/report/new?type=FOUND')}
+                  className="flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 transition-all group"
+                >
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                  </div>
+                  <span className="font-semibold text-slate-700 group-hover:text-emerald-700">Found Item</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

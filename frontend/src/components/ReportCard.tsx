@@ -32,10 +32,21 @@ export default function ReportCard({ report, index = 0 }: ReportCardProps) {
       >
         {/* Top Badges */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-          {/* Location Badge */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/90 backdrop-blur-sm text-slate-800 rounded-full text-[10px] font-bold shadow-sm">
-            <MapPin className="w-3 h-3 text-rose-500" />
-            <LocationName latitude={report.latitude} longitude={report.longitude} className="max-w-[120px] truncate" />
+          <div className="flex gap-2">
+            {/* Type Badge */}
+            <div className={`flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm ${
+              report.type === 'FOUND' 
+                ? 'bg-emerald-500 text-white' 
+                : 'bg-rose-500 text-white'
+            }`}>
+              {report.type === 'FOUND' ? 'FOUND' : 'LOST'}
+            </div>
+            
+            {/* Location Badge */}
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-white/90 backdrop-blur-sm text-slate-800 rounded-full text-[10px] font-bold shadow-sm">
+              <MapPin className="w-3 h-3 text-rose-500" />
+              <LocationName latitude={report.latitude} longitude={report.longitude} className="max-w-20 truncate" />
+            </div>
           </div>
           
           {/* Status Badge */}

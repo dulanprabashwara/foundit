@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import MapView from '@/components/MapView';
 import { reportApi } from '@/lib/api';
@@ -32,6 +32,8 @@ const STEPS = [
 export default function NewReportPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const reportType = searchParams.get('type') || 'LOST';
 
   const [currentStep, setCurrentStep] = useState(1);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -127,6 +129,7 @@ export default function NewReportPage() {
       formData.append('title', title.trim());
       formData.append('description', description.trim());
       formData.append('category', category);
+      formData.append('type', reportType);
       formData.append('latitude', String(position[0]));
       formData.append('longitude', String(position[1]));
       if (imageFile) {
@@ -157,9 +160,9 @@ export default function NewReportPage() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-800">Report an Item</h1>
+          <h1 className="text-2xl font-bold text-slate-800">Report a {reportType === 'FOUND' ? 'Found' : 'Lost'} Item</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Create a new lost or found item report
+            Create a new report for {reportType === 'FOUND' ? 'an item you found' : 'an item you lost'}
           </p>
         </div>
 

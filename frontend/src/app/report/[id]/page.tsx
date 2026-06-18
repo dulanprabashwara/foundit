@@ -285,6 +285,15 @@ export default function ReportDetailPage() {
               {/* Status & Category */}
               <div className="flex items-center gap-2 mb-4">
                 <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
+                    report.type === 'FOUND'
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-rose-500 text-white'
+                  }`}
+                >
+                  {report.type === 'FOUND' ? 'FOUND ITEM' : 'LOST ITEM'}
+                </span>
+                <span
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
                   style={{
                     backgroundColor: `${categoryInfo.color}15`,

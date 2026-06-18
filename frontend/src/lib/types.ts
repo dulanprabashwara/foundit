@@ -3,6 +3,7 @@ export interface Report {
   title: string;
   description: string;
   category: Category;
+  type: ReportType;
   status: Status;
   latitude: number;
   longitude: number;
@@ -33,6 +34,7 @@ export interface Comment {
 }
 
 export type Category = 'PETS' | 'ELECTRONICS' | 'KEYS' | 'WALLET' | 'BAG' | 'OTHER';
+export type ReportType = 'LOST' | 'FOUND';
 export type Status = 'ACTIVE' | 'RESOLVED';
 
 export const CATEGORIES: { value: Category; label: string; icon: string; color: string }[] = [

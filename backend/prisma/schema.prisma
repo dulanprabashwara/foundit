@@ -21,6 +21,7 @@ model Report {
   title       String
   description String
   category    Category
+  type        ReportType @default(LOST)
   status      Status   @default(ACTIVE)
   latitude    Float
   longitude   Float
@@ -48,6 +49,11 @@ enum Category {
   WALLET
   BAG
   OTHER
+}
+
+enum ReportType {
+  LOST
+  FOUND
 }
 
 enum Status {

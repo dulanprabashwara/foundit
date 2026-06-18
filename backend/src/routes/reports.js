@@ -168,11 +168,15 @@ router.get('/:id/image', async (req, res) => {
 // POST /api/reports - Create new report
 router.post('/', authenticate, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, category, latitude, longitude } = req.body;
+    const { title, description, category, type, latitude, longitude } = req.body;
 
     // Validation
-    if (!title || !description || !category || !latitude || !longitude) {
+    if (!title || !description || !category || !type || !latitude || !longitude) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    if (!['LOST', 'FOUND'].includes(type)) {
+      return res.status(400).json({ error: 'Invalid report type' });
     }
 
     const validCategories = ['PETS', 'ELECTRONICS', 'KEYS', 'WALLET', 'BAG', 'OTHER'];
@@ -185,6 +189,7 @@ router.post('/', authenticate, upload.single('image'), async (req, res) => {
         title,
         description,
         category,
+        type,
         latitude: parseFloat(latitude),
         longitude: parseFloat(longitude),
         imageData: req.file ? req.file.buffer : null,
