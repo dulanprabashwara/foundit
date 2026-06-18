@@ -19,6 +19,15 @@ export default function LandingPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -71,7 +80,7 @@ export default function LandingPage() {
   return (
     <div className="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col">
       {/* Top NavBar */}
-      <nav className="bg-white shadow-sm border-b border-slate-200 fixed top-0 left-0 w-full z-40 flex justify-center px-4 md:px-10 h-16 md:h-20">
+      <nav className={`fixed top-0 left-0 w-full z-40 flex justify-center px-4 md:px-10 h-16 md:h-20 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-sm border-b border-slate-200/50' : 'bg-white shadow-sm border-b border-slate-200'}`}>
         <div className="w-full max-w-7xl flex items-center justify-between mx-auto">
           {/* Brand */}
           <div className="flex items-center gap-2">
