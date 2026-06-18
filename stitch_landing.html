@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FoundIt - Lost &amp; Found Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#fffbff",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#904900",
+                        "surface": "#f8f9ff",
+                        "on-tertiary-fixed": "#301400",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "background": "#f8f9ff",
+                        "on-surface": "#0b1c30",
+                        "tertiary-container": "#b55d00",
+                        "primary-fixed": "#e1e0ff",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#c7c4d7",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#494bd6",
+                        "inverse-surface": "#213145",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-dim": "#cbdbf5",
+                        "primary-container": "#6063ee",
+                        "outline": "#767586",
+                        "surface-container": "#e5eeff",
+                        "on-secondary-container": "#006f64",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-container": "#fffbff",
+                        "on-secondary-fixed-variant": "#005048",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "primary": "#4648d4",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "secondary-container": "#6df5e1",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-secondary-fixed": "#00201c",
+                        "surface-container-highest": "#d3e4fe",
+                        "secondary-fixed": "#71f8e4",
+                        "inverse-primary": "#c0c1ff",
+                        "on-background": "#0b1c30",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#ffdcc5",
+                        "surface-container-low": "#eff4ff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "on-primary-fixed": "#07006c",
+                        "secondary": "#006b5f",
+                        "on-surface-variant": "#464554"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "margin-desktop": "40px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "container-max": "768px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav aria-label="Main Navigation" class="bg-surface-container-lowest shadow-sm border-b border-outline-variant fixed top-0 left-0 w-full z-50 flex justify-center px-4 md:px-margin-desktop h-16 md:h-20">
+<div class="w-full max-w-container-max flex items-center justify-between mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl icon-fill" data-icon="location_on" data-weight="fill">location_on</span>
+<span class="text-headline-md font-headline-md text-primary font-bold">FoundIt</span>
+</div>
+<!-- Desktop Links -->
+<div class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#">How It Works</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#">Post an Item</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#">Search Items</a>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-4">
+<button class="hidden md:flex items-center justify-center bg-primary text-on-primary font-medium px-6 py-2 rounded-full hover:bg-primary/90 transition-colors">
+                    Sign In
+                </button>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden p-2 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow pt-20 pb-24 md:pb-32 flex flex-col items-center w-full">
+<div class="w-full max-w-container-max px-4 md:px-margin-desktop space-y-24">
+<!-- Hero Section -->
+<section class="flex flex-col md:flex-row items-center gap-12 pt-8 md:pt-16">
+<div class="flex-1 space-y-6 text-center md:text-left">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-surface-container rounded-full text-primary font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-sm" data-icon="info">info</span>
+                        Lost &amp; Found Platform
+                    </div>
+<h1 class="text-headline-lg-mobile font-headline-lg-mobile md:text-headline-lg md:font-headline-lg text-on-surface">
+                        Lost something? <br class="hidden md:block"/>Start your search now.
+                    </h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant">
+                        Found something? Help return it to its owner. We connect people to recover what matters most across cities worldwide.
+                    </p>
+<div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 pt-4">
+<button class="w-full sm:w-auto bg-primary text-on-primary px-8 py-3 rounded-full font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+                            Get Started
+                            <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<button class="w-full sm:w-auto bg-surface-container-lowest text-on-surface border border-outline-variant px-8 py-3 rounded-full font-medium hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+                            Browse Items
+                        </button>
+</div>
+</div>
+<div class="flex-1 relative w-full aspect-square md:aspect-auto md:h-[400px]">
+<!-- Hand holding phone mockup (Placeholder) -->
+<div class="absolute inset-0 bg-surface-container-highest rounded-full shadow-lg overflow-hidden border-8 border-surface-container-lowest">
+<img alt="Person holding a smartphone displaying a map application, bright daylight, modern city environment, clean tech aesthetic." class="w-full h-full object-cover opacity-80 mix-blend-multiply" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwSqxxbF-nXs4Vk9MSMVkcX6DOgb8KxuYcfumWXO5cs8sNOH-vV9fyJ4Sr15an-Jwkm4YzHMiKr0k68YOYX8P154AxRnba3YBJWOTrQWdBwIvYGugX6DXPoKV7N3yZ9HuXfYZrJJAaxw1_WHprGVpp3vahNaX74GNi_9c-i4Bx5R1uTrGi3NYPWc_qP3JsLy_yZuDEExIXr0AO7rRM4aHiIIC1AnysJLscWHeH9bPl8cS3XV4cyQPfnzJzfX49LbFCv-xmQYXec_M"/>
+</div>
+<!-- Decorative Floating Circles -->
+<div class="absolute top-4 -left-4 w-24 h-24 rounded-full bg-secondary-container shadow-md border-4 border-surface-container-lowest overflow-hidden">
+<img alt="Small cute dog looking at camera, sunny day, shallow depth of field, warm inviting lighting." class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFA_tJX0AQLMBRZxTHEdQRpARVUs0rO2DnbTdiP4vslLh3Ds27dzlwZyC39H4Ytpoe9saqkcwLq0OwA2V_sY67u9UZGtgNp1cEc88rgtB6TANM7WX_VDw9dt4U1Sf4bj0bNryK-YyB6Bh4NVi6fq3Bu-C2_nMcG4hTLV0I3I2FM2BHn1Fn4Y2qe8-txojh0TBRDVb_pFYECxOcLTAFrZJkP3W2EXntqS-UqsswNekh3Til5xPCUsZ9fP2-3tlE0TQbfsHUagUuIrU"/>
+</div>
+<div class="absolute bottom-12 -right-6 w-32 h-32 rounded-full bg-tertiary-container shadow-md border-4 border-surface-container-lowest overflow-hidden">
+<img alt="Red backpack resting on a wooden dock by a calm lake, misty morning atmosphere, adventurous mood." class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBW9dOt-k-FawPVWxmAkdIP-fziaJUnsl8lfgvbeQAKjkGGf71GhrsqHCZDyvexvn5CZ5qizzvJE_UJeN9Uu4GXep9Gna3dv1DKuxHUtjmhmp7fPGwaBffSmPehN7YtZK6p6GVEPiZtamJLFMn9la5Uoirf_CUVTsG20cE5Z-HPRpK6RaiYQVkhpq9R4gl2rtrb_XnepkWM9wlUYJEeldT8A1ns2yM1B_dOIZdYnvWXsW5pYdwAwtdptEyrUFbOnFDhUxrcXms5WzI"/>
+</div>
+<div class="absolute -top-8 right-12 w-20 h-20 rounded-full bg-surface shadow-md border-4 border-surface-container-lowest overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="keys">key</span>
+</div>
+</div>
+</section>
+<!-- Process Section -->
+<section class="space-y-12 text-center pt-12">
+<div class="space-y-4">
+<h2 class="text-label-caps font-label-caps text-primary tracking-widest uppercase">Simple Process</h2>
+<h3 class="text-headline-md font-headline-md text-on-surface">How It Works</h3>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-lg mx-auto">Three simple steps to recover your lost items or return found ones.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Step 1 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+<div class="h-48 bg-surface-container w-full">
+<img alt="Young woman looking concerned at her smartphone while standing in a bright public plaza, modern architecture in background." class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBGsgPqjUk9xHukuv6ZbwRGzqEG8ft5Fl5znYJx0lMXRd8tbIHVzONubmaCmbiDbIqySM5rkK5v4qWX7M6uWGvT8W7jDAZWfQjsI3IecQMwEoobIutGBFcmIKKcX6fcIhg9_PSi_12pmSPUTUVTUiQFdPnZz9gsTNLXhNZGlp51v8t9DrQ3a_dpouTbHpHuy5rAN__bkxfvtmA7cwfzJIi89xRqCLhbT7csvJkERYSwMLV09erUwYGY_Vq_SXxg0ftZFjEnUp69Yc"/>
+</div>
+<div class="p-6 text-left space-y-4">
+<div class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="add_location">add_location</span>
+</div>
+<div>
+<h4 class="text-body-lg font-body-lg font-semibold text-on-surface">Step 1: Report</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2">Log where and when you lost or found the item.</p>
+</div>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+<div class="h-48 bg-surface-container w-full">
+<img alt="Montage of busy public spaces: a crowded train car, a bustling cafe, and a busy train station platform. Represents searching everywhere." class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4b-XUON9aO87vnEXcTDZ70CwZ8mDlaGmOpuuwPzgAS4kLBvtlk9Cv22sIX9kp6fMjFNOsbr7NNxPu0CE0_Qj1Go4xzLkweRSHE2sfcMjoFQUEmJgAuhog1LUhideCbyWTsWMNuEP4oEqJFbmZ5NsC4E5F1pilUM6lf-_JXKrZJ3d0eyXDYrA5XpoKR4lfaaWZ4x2NirT7qcHZu5SA2vdl8Ha9jatEpZkdrTlVoy_Svmbzloz81rKrFTEoV4D_tCs9HsHdXUytfnM"/>
+</div>
+<div class="p-6 text-left space-y-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="travel_explore">travel_explore</span>
+</div>
+<div>
+<h4 class="text-body-lg font-body-lg font-semibold text-on-surface">Step 2: Search</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2">Browse the database for matching found items near you.</p>
+</div>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+<div class="h-48 bg-surface-container w-full">
+<img alt="Two people smiling and shaking hands in a bright outdoor setting, one handing a lost wallet back to the other, warm positive feeling." class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhJQFeF62kbHXT9qe2Qg1EFK0b81atqW4K0tU738z1cZvZHvL3H3m2sEXP5g3QNznzStXN-Td0p0N0o2ob1y9uo43vrMXNsqhGNzijss2OZvaNqPm-v6YwRJW0dBmlETlGLqYLUj8axZMnCtZoc6pkeC_0cx8AE1jmoiG-uQEjPI20vYhfhyP1QshCeOfhqfY8sScQfja6D_O5kKjo5ndWwwxOKEo0ToEAqkRiQFCXOFxHuBG3NmEgNLF6HozBKVbnPwC-7XfdNFk"/>
+</div>
+<div class="p-6 text-left space-y-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+</div>
+<div>
+<h4 class="text-body-lg font-body-lg font-semibold text-on-surface">Step 3: Recover</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2">Connect safely and get your belongings back.</p>
+</div>
+</div>
+</div>
+</div>
+</section><section class="flex flex-col md:flex-row items-center gap-12 pt-12">
+<div class="flex-1 w-full">
+<img alt="A diverse group of smiling people representing community" class="w-full h-full object-cover rounded-2xl shadow-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBGsgPqjUk9xHukuv6ZbwRGzqEG8ft5Fl5znYJx0lMXRd8tbIHVzONubmaCmbiDbIqySM5rkK5v4qWX7M6uWGvT8W7jDAZWfQjsI3IecQMwEoobIutGBFcmIKKcX6fcIhg9_PSi_12pmSPUTUVTUiQFdPnZz9gsTNLXhNZGlp51v8t9DrQ3a_dpouTbHpHuy5rAN__bkxfvtmA7cwfzJIi89xRqCLhbT7csvJkERYSwMLV09erUwYGY_Vq_SXxg0ftZFjEnUp69Yc"/>
+</div>
+<div class="flex-1 space-y-6">
+<div class="text-label-caps font-label-caps text-secondary tracking-widest uppercase">Trust &amp; Community</div>
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile md:text-headline-lg md:font-headline-lg text-on-surface">
+      Powered by Community &amp; <span class="text-secondary">Businesses</span>
+</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant">
+      Using our community-powered platform, individuals and businesses work together to return lost items with speed, accuracy, and trust.
+    </p>
+<ul class="space-y-4">
+<li class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="shield">shield</span>
+</div>
+<span class="text-body-lg font-medium text-on-surface">Businesses manage lost &amp; found efficiently</span>
+</li>
+<li class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+</div>
+<span class="text-body-lg font-medium text-on-surface">Users connect directly with finders</span>
+</li>
+<li class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="sync_alt">sync_alt</span>
+</div>
+<span class="text-body-lg font-medium text-on-surface">Secure and structured recovery process</span>
+</li>
+</ul>
+</div>
+</section>
+<!-- CTA Banner -->
+<section class="w-full bg-gradient-to-br from-primary to-surface-tint rounded-2xl p-8 md:p-16 text-center text-on-primary shadow-lg relative overflow-hidden">
+<!-- Decorative subtle pattern overlay -->
+<div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+<div class="relative z-10 space-y-6 max-w-xl mx-auto">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium border border-white/30">
+<span class="material-symbols-outlined text-sm" data-icon="groups">groups</span>
+                        Join thousands recovering their items
+                    </div>
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile md:text-headline-lg md:font-headline-lg">
+                        Ready to find what you lost?
+                    </h2>
+<p class="text-body-lg font-body-lg text-primary-fixed opacity-90">
+                        Our community is here to help. Start your search or report a found item today.
+                    </p>
+<button class="bg-surface-container-lowest text-primary px-8 py-4 rounded-full font-bold hover:bg-surface-container-low transition-colors shadow-md mt-4">
+                        Get Started Now
+                    </button>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-inverse-surface text-inverse-on-surface pt-16 pb-8 px-4 md:px-margin-desktop mt-auto">
+<div class="w-full max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+<!-- Brand Column -->
+<div class="col-span-1 md:col-span-1 space-y-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed-dim text-3xl icon-fill" data-icon="location_on">location_on</span>
+<span class="text-headline-md font-headline-md text-surface-container-lowest font-bold">FoundIt</span>
+</div>
+<p class="text-body-sm font-body-sm text-outline-variant">
+                    A community-powered platform connecting people with their lost belongings across cities worldwide.
+                </p>
+</div>
+<!-- Links Column 1 -->
+<div class="space-y-4">
+<h4 class="text-body-lg font-body-lg font-semibold text-surface-container-lowest">Platform</h4>
+<ul class="space-y-2 text-body-sm font-body-sm text-outline-variant">
+<li class=""><a class="hover:text-surface-container-lowest transition-colors" href="#">How It Works</a></li>
+<li class=""><a class="hover:text-surface-container-lowest transition-colors" href="#">Post an Item</a></li>
+<li class=""><a class="hover:text-surface-container-lowest transition-colors" href="#">Search Items</a></li>
+<li class=""><a class="hover:text-surface-container-lowest transition-colors" href="#">Safety Guidelines</a></li>
+</ul>
+</div>
+<!-- Links Column 2 -->
+<div class="space-y-4">
+<h4 class="text-body-lg font-body-lg font-semibold text-surface-container-lowest">Company</h4>
+<ul class="space-y-2 text-body-sm font-body-sm text-outline-variant">
+<li class=""><a class="hover:text-surface-container-lowest transition-colors" href="#">About Us</a></li>
+<li class=""><a class="hover:text-surface-container-lowest transition-colors" href="#">Our Mission</a></li>
+<li class=""><a class="hover:text-surface-container-lowest transition-colors" href="#">Contact</a></li>
+</ul>
+</div>
+<!-- Social/More -->
+<div class="space-y-4">
+<h4 class="text-body-lg font-body-lg font-semibold text-surface-container-lowest">Connect</h4>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-surface/10 flex items-center justify-center text-surface-container-lowest hover:bg-surface/20 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="share">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface/10 flex items-center justify-center text-surface-container-lowest hover:bg-surface/20 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="mail">mail</span>
+</a>
+</div>
+</div>
+</div>
+<div class="w-full max-w-container-max mx-auto mt-12 pt-8 border-t border-outline/30 flex flex-col md:flex-row items-center justify-between gap-4 text-body-sm font-body-sm text-outline-variant">
+<p class="">© 2024 FoundIt. All rights reserved.</p>
+<div class="flex gap-4">
+<a class="hover:text-surface-container-lowest transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-surface-container-lowest transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<nav aria-label="Mobile Navigation" class="md:hidden bg-surface-container-lowest dark:bg-surface-dim shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] border-t border-outline-variant fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-container-max z-50 flex justify-around items-center px-4 py-2 pb-safe rounded-t-xl">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-fixed-variant text-on-primary-container dark:text-on-primary rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</a>
+<!-- Search -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-label-caps text-label-caps mt-1">Search</span>
+</a>
+<!-- Post -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-label-caps text-label-caps mt-1">Post</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

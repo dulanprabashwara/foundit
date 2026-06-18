@@ -1,0 +1,1 @@
+const { Client } = require('pg'); const client = new Client({ connectionString: process.env.DATABASE_URL }); async function main() { await client.connect(); await client.query('ALTER TABLE "Comment" ADD COLUMN "parentId" text;'); console.log('Migrated'); await client.end(); } main().catch(console.error);

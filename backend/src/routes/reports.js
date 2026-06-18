@@ -87,6 +87,7 @@ router.get('/', optionalAuth, async (req, res) => {
         id: true,
         title: true,
         description: true,
+        contactInfo: true,
         category: true,
         type: true,
         status: true,
@@ -137,6 +138,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
         id: true,
         title: true,
         description: true,
+        contactInfo: true,
         category: true,
         type: true,
         status: true,
@@ -202,7 +204,7 @@ router.get('/:id/image', async (req, res) => {
 // POST /api/reports - Create new report
 router.post('/', authenticate, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, category, type, latitude, longitude } = req.body;
+    const { title, description, contactInfo, category, type, latitude, longitude } = req.body;
 
     // Validation
     if (!title || !description || !category || !type || !latitude || !longitude) {
@@ -222,6 +224,7 @@ router.post('/', authenticate, upload.single('image'), async (req, res) => {
       data: {
         title,
         description,
+        contactInfo,
         category,
         type,
         latitude: parseFloat(latitude),
@@ -308,7 +311,7 @@ router.patch('/:id/status', authenticate, async (req, res) => {
 // PATCH /api/reports/:id - Edit a report (owner only)
 router.patch('/:id', authenticate, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, category, latitude, longitude } = req.body;
+    const { title, description, contactInfo, category, latitude, longitude } = req.body;
 
     // Verify ownership
     const existing = await prisma.report.findUnique({
@@ -329,6 +332,7 @@ router.patch('/:id', authenticate, upload.single('image'), async (req, res) => {
     const updateData = {};
     if (title) updateData.title = title;
     if (description) updateData.description = description;
+    if (contactInfo !== undefined) updateData.contactInfo = contactInfo;
     if (category && validCategories.includes(category)) updateData.category = category;
     if (latitude) updateData.latitude = parseFloat(latitude);
     if (longitude) updateData.longitude = parseFloat(longitude);

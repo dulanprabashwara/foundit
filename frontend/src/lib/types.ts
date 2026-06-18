@@ -2,6 +2,7 @@ export interface Report {
   id: string;
   title: string;
   description: string;
+  contactInfo?: string;
   category: Category;
   type: ReportType;
   status: Status;

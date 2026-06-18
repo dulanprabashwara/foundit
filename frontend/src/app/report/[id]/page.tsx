@@ -44,6 +44,7 @@ export default function ReportDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editContactInfo, setEditContactInfo] = useState('');
   const [editCategory, setEditCategory] = useState<Category | ''>('');
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
@@ -143,6 +144,7 @@ export default function ReportDetailPage() {
     if (!report) return;
     setEditTitle(report.title);
     setEditDescription(report.description);
+    setEditContactInfo(report.contactInfo || '');
     setEditCategory(report.category);
     setEditPosition([report.latitude, report.longitude]);
     setEditImageFile(null);
@@ -177,6 +179,9 @@ export default function ReportDetailPage() {
       const formData = new FormData();
       formData.append('title', editTitle.trim());
       formData.append('description', editDescription.trim());
+      if (editContactInfo.trim()) {
+        formData.append('contactInfo', editContactInfo.trim());
+      }
       formData.append('category', editCategory);
       if (editPosition) {
         formData.append('latitude', String(editPosition[0]));
@@ -346,6 +351,18 @@ export default function ReportDetailPage() {
                   </div>
 
                   <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Contact Information</label>
+                    <input
+                      type="text"
+                      value={editContactInfo}
+                      onChange={(e) => setEditContactInfo(e.target.value)}
+                      maxLength={100}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                      placeholder="Optional"
+                    />
+                  </div>
+
+                  <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
                     <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                       {CATEGORIES.map((cat) => (
@@ -413,6 +430,13 @@ export default function ReportDetailPage() {
                   <h1 className="text-2xl font-bold text-slate-800 mb-3">{report.title}</h1>
 
                   <p className="text-slate-600 leading-relaxed mb-6">{report.description}</p>
+                  
+                  {report.contactInfo && (
+                    <div className="mb-6 p-4 bg-primary-50 border border-primary-100 rounded-xl">
+                      <p className="text-sm font-semibold text-primary-800 mb-1">Contact Information</p>
+                      <p className="text-sm text-primary-700">{report.contactInfo}</p>
+                    </div>
+                  )}
 
                   {/* Meta */}
                   <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
@@ -438,10 +462,10 @@ export default function ReportDetailPage() {
 
                   {/* Owner actions */}
                   {isOwner && (
-                    <div className="flex items-center gap-3 mt-6 pt-6 border-t border-slate-100">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-6 pt-6 border-t border-slate-100">
                       <button
                         onClick={startEditing}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors"
+                        className="flex-1 sm:flex-none flex justify-center items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                         Edit
@@ -449,7 +473,7 @@ export default function ReportDetailPage() {
                       <button
                         onClick={handleToggleStatus}
                         disabled={statusLoading}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                        className={`flex-1 sm:flex-none flex justify-center items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                           isResolved
                             ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
                             : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
@@ -471,7 +495,7 @@ export default function ReportDetailPage() {
                       </button>
                       <button
                         onClick={handleDelete}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                        className="flex-1 sm:flex-none flex justify-center items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                         Delete
@@ -605,26 +629,30 @@ export default function ReportDetailPage() {
                   </button>
                 </div>
               )}
-              <form onSubmit={handleAddComment} className={`flex gap-3 ${replyingTo ? 'pt-3 border-t border-primary-100' : ''}`}>
-                <div className="shrink-0 w-8 h-8 rounded-lg bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
-                  {user?.photoURL ? (
-                    <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    user?.displayName?.[0]?.toUpperCase() || 'U'
+              <form onSubmit={handleAddComment} className={`flex items-center gap-2 sm:gap-3 ${replyingTo ? 'pt-3 border-t border-primary-100' : ''}`}>
+                <div className="shrink-0 w-8 h-8 rounded-lg bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden relative">
+                  <span className="relative z-0">{user?.displayName?.[0]?.toUpperCase() || 'U'}</span>
+                  {user?.photoURL && (
+                    <img 
+                      src={user.photoURL} 
+                      alt="" 
+                      className="absolute inset-0 z-10 w-full h-full object-cover bg-white"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
                   )}
                 </div>
-                <div className="flex-1 flex gap-2">
+                <div className="flex-1 flex min-w-0 gap-2">
                   <input
                     type="text"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Add a comment..."
-                    className="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                    className="flex-1 min-w-0 px-3 py-2 sm:px-4 sm:py-2.5 border border-slate-300 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                   />
                   <button
                     type="submit"
                     disabled={!newComment.trim() || commentLoading}
-                    className="px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
+                    className="shrink-0 px-3 py-2 sm:px-4 sm:py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center"
                   >
                     {commentLoading ? (
                       <Loader2 className="w-4 h-4 animate-spin" />

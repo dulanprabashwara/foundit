@@ -40,6 +40,7 @@ function NewReportContent() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [contactInfo, setContactInfo] = useState('');
   const [category, setCategory] = useState<Category | ''>('');
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -128,6 +129,9 @@ function NewReportContent() {
       const formData = new FormData();
       formData.append('title', title.trim());
       formData.append('description', description.trim());
+      if (contactInfo.trim()) {
+        formData.append('contactInfo', contactInfo.trim());
+      }
       formData.append('category', category);
       formData.append('type', reportType);
       formData.append('latitude', String(position[0]));
@@ -309,6 +313,18 @@ function NewReportContent() {
                     rows={4}
                     className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none"
                     placeholder="Provide details about the item, distinguishing features, when/where it was last seen..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Contact Information (Optional)</label>
+                  <input
+                    type="text"
+                    value={contactInfo}
+                    onChange={(e) => setContactInfo(e.target.value)}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                    placeholder="e.g., Phone number or best way to reach you"
+                    maxLength={100}
                   />
                 </div>
 

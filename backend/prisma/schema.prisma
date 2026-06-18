@@ -21,6 +21,7 @@ model Report {
   id          String   @id @default(uuid())
   title       String
   description String
+  contactInfo String?
   category    Category
   type        ReportType @default(LOST)
   status      Status   @default(ACTIVE)
