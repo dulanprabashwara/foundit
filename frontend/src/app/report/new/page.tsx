@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import MapView from '@/components/MapView';
 import { reportApi } from '@/lib/api';
-import { CATEGORIES, Category, type Report } from '@/lib/types';
+import { CATEGORIES, Category } from '@/lib/types';
 import {
   Upload,
   Image as ImageIcon,
@@ -33,7 +33,7 @@ function NewReportContent() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const reportType = searchParams.get('type') === 'FOUND' ? 'FOUND' : 'LOST';
+  const reportType = searchParams.get('type') || 'LOST';
 
   const [currentStep, setCurrentStep] = useState(1);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -140,8 +140,8 @@ function NewReportContent() {
         formData.append('image', imageFile);
       }
 
-      const created = await reportApi.create(formData) as Report;
-      router.push(`/report/${created.id}`);
+      await reportApi.create(formData);
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to create report');
     } finally {
@@ -161,15 +161,13 @@ function NewReportContent() {
     <div className="min-h-screen bg-transparent">
       <Navbar />
 
-      <main className="page-shell max-w-4xl py-8 sm:py-10">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <span className={`eyebrow ${reportType === 'FOUND' ? '!text-emerald-700' : '!text-rose-700'}`}><span className={`h-2 w-2 rounded-full ${reportType === 'FOUND' ? 'bg-emerald-500' : 'bg-rose-500'}`} />{reportType === 'FOUND' ? 'Found item' : 'Lost item'}</span>
-            <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-4xl">Create a clear, useful report.</h1>
-            <p className="text-sm text-slate-500 mt-2">A good photo, a few recognizable details, and an accurate pin give your report the best chance.</p>
-          </div>
-          <span className="w-fit rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-500 shadow-sm">Step {currentStep} of {STEPS.length}</span>
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-slate-800">Report a {reportType === 'FOUND' ? 'Found' : 'Lost'} Item</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Create a new report for {reportType === 'FOUND' ? 'an item you found' : 'an item you lost'}
+          </p>
         </div>
 
         {/* Step indicators */}
@@ -181,7 +179,7 @@ function NewReportContent() {
 
             return (
               <React.Fragment key={step.id}>
-                <div className="flex flex-col items-center gap-2" aria-current={isActive ? 'step' : undefined}>
+                <div className="flex flex-col items-center gap-2">
                   <div
                     className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                       isCompleted
@@ -217,7 +215,7 @@ function NewReportContent() {
         </div>
 
         {/* Step content */}
-        <div className="app-surface overflow-hidden rounded-3xl">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           {/* Step 1: Image Upload */}
           {currentStep === 1 && (
             <div className="p-6 animate-fade-in">
@@ -421,7 +419,7 @@ function NewReportContent() {
           )}
 
           {/* Navigation */}
-          <div className="flex items-center justify-between px-6 py-4 bg-slate-50/90 border-t border-slate-200">
+          <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-t border-slate-200">
             <button
               onClick={() => {
                 if (currentStep === 1) router.push('/dashboard');

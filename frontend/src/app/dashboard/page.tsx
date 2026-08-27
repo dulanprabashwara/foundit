@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useSWR from 'swr';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar';
 import ReportCard from '@/components/ReportCard';
 import MapView from '@/components/MapView';
 import { reportApi } from '@/lib/api';
-import { Report, CATEGORIES } from '@/lib/types';
+import { Report, CATEGORIES, Category } from '@/lib/types';
 import {
   Search,
   Filter,
@@ -17,10 +17,10 @@ import {
   Loader2,
   MapPin,
   AlertCircle,
+  RefreshCw,
+  SlidersHorizontal,
   CheckCircle2,
   Plus,
-  Columns3,
-  ChevronDown,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -60,18 +60,16 @@ export default function DashboardPage() {
   const error = swrError?.message || '';
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      const saved = localStorage.getItem('foundit_geofence');
-      if (saved) {
-        try {
-          const geo = JSON.parse(saved);
-          setUserLocation({ latitude: geo.latitude, longitude: geo.longitude });
-          return;
-        } catch {}
-      }
+    const saved = localStorage.getItem('foundit_geofence');
+    if (saved) {
+      try {
+        const geo = JSON.parse(saved);
+        setUserLocation({ latitude: geo.latitude, longitude: geo.longitude });
+      } catch (e) {}
+    } else {
+      // Default to Colombo center if no geofence is set yet
       setUserLocation({ latitude: 6.9271, longitude: 79.8612 });
-    }, 0);
-    return () => window.clearTimeout(timeout);
+    }
   }, []);
 
   const filteredReports = (reports as Report[]).filter((report: Report) => {
@@ -112,10 +110,6 @@ export default function DashboardPage() {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  const activeCount = (reports as Report[]).filter((report) => report.status === 'ACTIVE').length;
-  const lostCount = (reports as Report[]).filter((report) => report.type === 'LOST').length;
-  const foundCount = (reports as Report[]).filter((report) => report.type === 'FOUND').length;
-
   if (authLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -128,71 +122,90 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-transparent">
       <Navbar />
 
-      <main className="page-shell py-8 sm:py-10">
-        <section className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <span className="eyebrow"><MapPin className="h-3.5 w-3.5" /> Community recovery network</span>
-            <h1 className="mt-3 text-balance text-3xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-4xl">Find what matters, close to home.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">Browse recent lost and found reports, explore your area, and help an item make its way home.</p>
-          </div>
-          <div className="flex items-center gap-2">
-            {[['Active', activeCount, 'bg-emerald-500'], ['Lost', lostCount, 'bg-rose-500'], ['Found', foundCount, 'bg-indigo-500']].map(([label, count, color]) => (
-              <div key={String(label)} className="app-surface rounded-2xl px-4 py-3">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-500"><span className={`h-2 w-2 rounded-full ${color}`} />{label}</div>
-                <p className="mt-1 text-xl font-extrabold text-slate-900">{count}</p>
-              </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        {/* Top Controls */}
+        <div className="flex items-center justify-between mb-8 max-w-4xl mx-auto">
+          {/* Feed/Map Toggle */}
+          <div className="flex items-center bg-white border border-slate-200 rounded-full p-1 shadow-sm">
+            {([
+              { mode: 'feed', icon: LayoutList, label: 'Feed' },
+              { mode: 'map', icon: Map, label: 'Map' },
+            ] as const).map(({ mode, icon: Icon, label }) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode as any)}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                  (viewMode === mode || (viewMode === 'split' && mode === 'feed'))
+                    ? 'bg-indigo-50 text-indigo-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </button>
             ))}
           </div>
-        </section>
 
-        <section className="app-surface mb-7 rounded-3xl p-3 sm:p-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-            <label className="relative flex-1">
-              <span className="sr-only">Search reports</span>
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="search"
-                placeholder="Search by item name or description"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50/80 py-3 pl-11 pr-4 text-sm text-slate-900 outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-              />
-            </label>
+          {/* Filters Button */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-5 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-700 hover:bg-slate-50 shadow-sm transition-all"
+          >
+            <Filter className="w-4 h-4 text-slate-500" />
+            Filters
+          </button>
+        </div>
 
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center rounded-2xl bg-slate-100 p-1" aria-label="Choose view">
-                {([
-                  { mode: 'split', icon: Columns3, label: 'Split' },
-                  { mode: 'feed', icon: LayoutList, label: 'Feed' },
-                  { mode: 'map', icon: Map, label: 'Map' },
-                ] as const).map(({ mode, icon: Icon, label }) => (
-                  <button key={mode} onClick={() => setViewMode(mode)} className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition-all ${viewMode === mode ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`} aria-pressed={viewMode === mode}>
-                    <Icon className="h-3.5 w-3.5" /><span className="hidden sm:inline">{label}</span>
+        {/* Filters Panel (Collapsible) */}
+        {showFilters && (
+          <div className="mb-8 p-4 bg-white border border-slate-200 rounded-2xl shadow-sm max-w-4xl mx-auto animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search reports..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                />
+              </div>
+
+              {/* Category filters */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <button
+                  onClick={() => setSelectedCategory('ALL')}
+                  className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    selectedCategory === 'ALL'
+                      ? 'bg-slate-800 text-white shadow-md'
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  All Types
+                </button>
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.value}
+                    onClick={() => setSelectedCategory(cat.value)}
+                    className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      selectedCategory === cat.value
+                        ? 'text-white shadow-md'
+                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                    }`}
+                    style={
+                      selectedCategory === cat.value
+                        ? { backgroundColor: cat.color }
+                        : {}
+                    }
+                  >
+                    <img src={cat.icon} alt={cat.label} className="w-5 h-5 object-contain" />
+                    {cat.label}
                   </button>
                 ))}
               </div>
-              <button onClick={() => setShowFilters((visible) => !visible)} className={`flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-xs font-bold transition ${showFilters || selectedCategory !== 'ALL' ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}`} aria-expanded={showFilters}>
-                <Filter className="h-4 w-4" /> Filters <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-              </button>
             </div>
           </div>
-
-          {showFilters && (
-            <div className="mt-3 flex items-center gap-2 overflow-x-auto border-t border-slate-100 px-1 pt-3 scrollbar-hide animate-fade-in">
-              <button onClick={() => setSelectedCategory('ALL')} className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold ${selectedCategory === 'ALL' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>All categories</button>
-              {CATEGORIES.map((category) => (
-                <button key={category.value} onClick={() => setSelectedCategory(category.value)} className={`flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${selectedCategory === category.value ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>
-                  <img src={category.icon} alt="" className="h-4 w-4 object-contain" />{category.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <div className="mb-5 flex items-center justify-between">
-          <p className="text-sm font-semibold text-slate-600"><span className="font-extrabold text-slate-900">{sortedReports.length}</span> {sortedReports.length === 1 ? 'report' : 'reports'} nearby</p>
-          {(searchQuery || selectedCategory !== 'ALL') && <button onClick={() => { setSearchQuery(''); setSelectedCategory('ALL'); }} className="text-xs font-bold text-indigo-700 hover:text-indigo-900">Clear filters</button>}
-        </div>
+        )}
 
         {/* Error state */}
         {error && (
@@ -283,7 +296,6 @@ export default function DashboardPage() {
                 }`}>
                   <MapView
                     reports={sortedReports}
-                    center={userLocation ? [userLocation.latitude, userLocation.longitude] : undefined}
                     selectedReportId={selectedReportId}
                     onReportSelect={(id) => {
                       if (viewMode === 'map') {

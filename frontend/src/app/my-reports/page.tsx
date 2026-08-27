@@ -1,26 +1,27 @@
 'use client';
 
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import LocationName from '@/components/LocationName';
 import { reportApi } from '@/lib/api';
-import { Report } from '@/lib/types';
+import { Report, getCategoryInfo } from '@/lib/types';
 import {
   Loader2,
   Plus,
   CheckCircle2,
   AlertCircle,
+  Clock,
+  MessageSquare,
   MapPin,
   RotateCcw,
   Trash2,
+  Eye,
+  Filter,
+  LayoutGrid,
 } from 'lucide-react';
 import Link from 'next/link';
-
-function getErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error ? error.message : fallback;
-}
 
 export default function MyReportsPage() {
   const { user, loading: authLoading } = useAuth();
@@ -37,33 +38,33 @@ export default function MyReportsPage() {
     }
   }, [user, authLoading, router]);
 
-  const fetchMyReports = useCallback(async () => {
+  useEffect(() => {
+    if (user) {
+      fetchMyReports();
+    }
+  }, [user]);
+
+  const fetchMyReports = async () => {
     try {
       setLoading(true);
       const data = await reportApi.getMyReports();
       setReports(data);
-    } catch (err: unknown) {
-      setError(getErrorMessage(err, 'Failed to fetch reports'));
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch reports');
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
-    const timeout = window.setTimeout(() => void fetchMyReports(), 0);
-    return () => window.clearTimeout(timeout);
-  }, [fetchMyReports, user]);
+  };
 
   const handleToggleStatus = async (reportId: string, currentStatus: string) => {
     try {
-      const newStatus: Report['status'] = currentStatus === 'ACTIVE' ? 'RESOLVED' : 'ACTIVE';
-      await reportApi.updateStatus(reportId, newStatus);
+      const newStatus = currentStatus === 'ACTIVE' ? 'RESOLVED' : 'ACTIVE';
+      await reportApi.updateStatus(reportId, newStatus as any);
       setReports(
-        reports.map((r) => (r.id === reportId ? { ...r, status: newStatus } : r))
+        reports.map((r) => (r.id === reportId ? { ...r, status: newStatus as any } : r))
       );
-    } catch (err: unknown) {
-      setError(getErrorMessage(err, 'Failed to update status'));
+    } catch (err: any) {
+      setError(err.message || 'Failed to update status');
     }
   };
 
@@ -72,8 +73,8 @@ export default function MyReportsPage() {
     try {
       await reportApi.delete(reportId);
       setReports(reports.filter((r) => r.id !== reportId));
-    } catch (err: unknown) {
-      setError(getErrorMessage(err, 'Failed to delete report'));
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete report');
     }
   };
 
@@ -97,39 +98,35 @@ export default function MyReportsPage() {
     <div className="min-h-screen bg-transparent">
       <Navbar />
 
-      <main className="page-shell max-w-5xl py-8 sm:py-10">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <span className="eyebrow"><MapPin className="h-3.5 w-3.5" /> Your contribution</span>
-            <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-4xl">My reports</h1>
-            <p className="text-sm text-slate-500 mt-2">
-              Track progress, update details, and close the loop when an item gets home.
+            <h1 className="text-3xl font-bold text-slate-900">My Reports</h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Manage your lost and found item reports
             </p>
           </div>
           <Link
             href="/report/new"
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-slate-950 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 hover:-translate-y-0.5 transition-all shadow-lg shadow-slate-950/15"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/25"
           >
             <Plus className="w-4 h-4" />
             New Report
           </Link>
         </div>
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:max-w-md">
-          <div className="app-surface rounded-2xl p-4"><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Active</p><p className="mt-1 text-2xl font-extrabold text-slate-900">{activeCount}</p></div>
-          <div className="app-surface rounded-2xl p-4"><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Resolved</p><p className="mt-1 text-2xl font-extrabold text-slate-900">{resolvedCount}</p></div>
-        </div>
+
 
         {/* Filter tabs */}
-        <div className="app-surface flex items-center gap-2 mb-6 rounded-2xl p-2 w-fit">
+        <div className="flex items-center gap-2 mb-6">
           {(['ALL', 'ACTIVE', 'RESOLVED'] as const).map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                 statusFilter === status
-                  ? 'bg-slate-950 text-white shadow-md'
-                  : 'text-slate-600 hover:bg-slate-50'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/25'
+                  : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300 shadow-sm'
               }`}
             >
               <span className="flex items-center gap-1.5">
@@ -254,7 +251,7 @@ export default function MyReportsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 mt-auto pt-2">
+                  <div className="flex items-center gap-3 mt-auto pt-2">
                     <Link
                       href={`/report/${report.id}`}
                       className="flex-1 py-2.5 rounded-full border-2 border-indigo-600 text-indigo-700 text-[13px] font-bold text-center hover:bg-indigo-50 transition-colors"
@@ -262,12 +259,16 @@ export default function MyReportsPage() {
                       Edit
                     </Link>
                     <button
-                      onClick={() => handleToggleStatus(report.id, report.status)}
-                      className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 rounded-full text-[13px] font-bold text-center transition-colors ${isResolved ? 'bg-amber-50 text-amber-700 hover:bg-amber-100' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                      onClick={() => !isResolved && handleToggleStatus(report.id, report.status)}
+                      disabled={isResolved}
+                      className={`flex-1 py-2.5 rounded-full text-[13px] font-bold text-center transition-colors ${
+                        isResolved
+                          ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                          : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                      }`}
                     >
-                      {isResolved ? <><RotateCcw className="h-3.5 w-3.5" /> Reopen</> : <><CheckCircle2 className="h-3.5 w-3.5" /> Resolve</>}
+                      Mark Resolved
                     </button>
-                    <button onClick={() => handleDelete(report.id)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-500 transition hover:bg-rose-100 hover:text-rose-700" aria-label={`Delete ${report.title}`}><Trash2 className="h-4 w-4" /></button>
                   </div>
                 </div>
               );

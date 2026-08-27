@@ -1,251 +1,294 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { notificationApi, commentApi } from '@/lib/api';
+import { Report } from '@/lib/types';
 import {
-  Bell,
-  ChevronRight,
-  CircleUserRound,
-  LayoutDashboard,
-  Loader2,
-  LogOut,
   MapPin,
-  Menu,
-  MessageSquare,
   Plus,
+  User,
+  LogOut,
+  Menu,
+  X,
+  Bell,
   Search,
   Settings,
-  X,
+  ChevronDown,
+  MessageSquare,
+  Loader2,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { notificationApi } from '@/lib/api';
-import type { Report } from '@/lib/types';
-
-type NearbyReport = Report & { distance: number };
-
-interface CommentNotification {
-  id: string;
-  author?: { name: string };
-  report: { id: string; title: string };
-  parent?: { authorId: string } | null;
-}
-
-interface NotificationResponse {
-  reports?: NearbyReport[];
-  comments?: CommentNotification[];
-}
-
-const navLinks = [
-  { href: '/dashboard', label: 'Discover', icon: LayoutDashboard },
-  { href: '/search', label: 'Search', icon: Search },
-  { href: '/my-reports', label: 'My reports', icon: MapPin },
-  { href: '/settings', label: 'Profile', icon: Settings },
-];
-
-function readGeofence() {
-  try {
-    const saved = localStorage.getItem('foundit_geofence');
-    return saved ? JSON.parse(saved) : null;
-  } catch {
-    return null;
-  }
-}
 
 export default function Navbar() {
   const { user, signOut } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [nearbyReports, setNearbyReports] = useState<NearbyReport[]>([]);
-  const [commentNotifications, setCommentNotifications] = useState<CommentNotification[]>([]);
-  const [notificationsLoading, setNotificationsLoading] = useState(false);
-  const [notificationsFetched, setNotificationsFetched] = useState(false);
+  const [profileDropdown, setProfileDropdown] = useState(false);
+  const [notificationsDropdown, setNotificationsDropdown] = useState(false);
+  const [nearbyReports, setNearbyReports] = useState<any[]>([]);
+  const [commentNotifs, setCommentNotifs] = useState<any[]>([]);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifFetched, setNotifFetched] = useState(false);
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-  const notificationCount = nearbyReports.length + commentNotifications.length;
+  const navLinks = [
+    { href: '/dashboard', label: 'Home' },
+    { href: '/search', label: 'Search' },
+    { href: '/my-reports', label: 'My Reports' },
+    { href: '/settings', label: 'Profile' },
+  ];
 
-  const loadNotifications = useCallback(async (useDefault = false) => {
-    const saved = readGeofence();
-    const geofence = saved || (useDefault ? { latitude: 6.9271, longitude: 79.8612, radius: 5 } : null);
-    if (!geofence) return;
-
-    setNotificationsLoading(true);
-    try {
-      const data = (await notificationApi.check(
-        geofence.latitude,
-        geofence.longitude,
-        geofence.radius
-      )) as NotificationResponse;
-      setNearbyReports(data.reports || []);
-      setCommentNotifications(data.comments || []);
-      setNotificationsFetched(true);
-    } catch {
-      setNearbyReports([]);
-      setCommentNotifications([]);
-    } finally {
-      setNotificationsLoading(false);
-    }
-  }, []);
+  const isActive = (href: string) => pathname === href;
 
   useEffect(() => {
-    if (user && !notificationsFetched && readGeofence()) {
-      const timeout = window.setTimeout(() => void loadNotifications(), 0);
-      return () => window.clearTimeout(timeout);
+    if (user && !notifFetched) {
+      const saved = localStorage.getItem('foundit_geofence');
+      const geo = saved ? JSON.parse(saved) : null;
+      if (geo) {
+        notificationApi.check(geo.latitude, geo.longitude, geo.radius)
+          .then((data) => {
+            setNearbyReports(data.reports || []);
+            setCommentNotifs(data.comments || []);
+            setNotifFetched(true);
+          })
+          .catch(() => {
+            setNearbyReports([]);
+            setCommentNotifs([]);
+          });
+      }
     }
-  }, [loadNotifications, notificationsFetched, user]);
-
-  const handleSignOut = async () => {
-    setMobileMenuOpen(false);
-    setProfileOpen(false);
-    await signOut();
-    router.push('/');
-  };
+  }, [user, notifFetched]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/88 shadow-[0_1px_0_rgba(16,24,40,0.02)] backdrop-blur-xl">
-      <div className="page-shell flex h-[72px] items-center justify-between gap-4">
-        <Link href="/dashboard" className="group flex items-center gap-3" aria-label="FoundIt dashboard">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-indigo-700 text-white shadow-lg shadow-indigo-500/20 transition-transform group-hover:-translate-y-0.5">
-            <MapPin className="h-5 w-5" strokeWidth={2.5} />
-          </span>
-          <span className="text-xl font-extrabold tracking-[-0.04em] text-slate-950">FoundIt</span>
-        </Link>
-
-        <nav className="hidden items-center gap-1 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-1 lg:flex" aria-label="Primary navigation">
-          {navLinks.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
-                isActive(href)
-                  ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-slate-200/70'
-                  : 'text-slate-500 hover:bg-white/70 hover:text-slate-900'
-              }`}
-              aria-current={isActive(href) ? 'page' : undefined}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <Link
-            href="/report/new"
-            className="hidden items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-950/10 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 sm:flex"
-          >
-            <Plus className="h-4 w-4" />
-            New report
+    <nav className="sticky top-0 z-50 bg-white/40 backdrop-blur-xl border-b border-white/40 shadow-sm">
+      <div className="w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <MapPin className="text-primary-600 w-8 h-8" />
+            <span className="text-2xl font-bold text-primary-600">FoundIt</span>
           </Link>
 
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setNotificationsOpen((open) => !open);
-                setProfileOpen(false);
-                if (!notificationsFetched) void loadNotifications(true);
-              }}
-              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
-              aria-label="Open notifications"
-              aria-expanded={notificationsOpen}
-            >
-              <Bell className="h-[18px] w-[18px]" />
-              {notificationCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-extrabold text-white ring-2 ring-white">
-                  {notificationCount > 9 ? '9+' : notificationCount}
-                </span>
-              )}
-            </button>
+          {/* Desktop Navigation (Centered) */}
+          <div className="hidden md:flex items-center gap-20 absolute left-1/2 -translate-x-1/2 h-full">
+            {navLinks.map((link) => {
+              const active = isActive(link.href) || (link.href === '/dashboard' && pathname === '/');
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative flex items-center h-full text-base font-semibold transition-colors ${
+                    active ? 'text-primary-600' : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  {link.label}
+                  {active && (
+                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary-600 rounded-t-full" />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
 
-            {notificationsOpen && (
-              <>
-                <button className="fixed inset-0 z-40 cursor-default" onClick={() => setNotificationsOpen(false)} aria-label="Close notifications" />
-                <div className="app-surface absolute right-0 z-50 mt-3 w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-2xl">
-                  <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                    <div>
-                      <p className="font-bold text-slate-900">Notifications</p>
-                      <p className="mt-0.5 text-xs text-slate-500">Nearby activity and conversations</p>
+          {/* Right side */}
+          <div className="hidden md:flex items-center gap-5">
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setNotificationsDropdown(!notificationsDropdown);
+                  if (!notifFetched) {
+                    setNotifLoading(true);
+                    const saved = localStorage.getItem('foundit_geofence');
+                    const geo = saved ? JSON.parse(saved) : { latitude: 6.9271, longitude: 79.8612, radius: 5 };
+                    notificationApi.check(geo.latitude, geo.longitude, geo.radius)
+                      .then((data) => {
+                        setNearbyReports(data.reports || []);
+                        setCommentNotifs(data.comments || []);
+                        setNotifFetched(true);
+                      })
+                      .catch(() => {
+                        setNearbyReports([]);
+                        setCommentNotifs([]);
+                      })
+                      .finally(() => setNotifLoading(false));
+                  }
+                }}
+                className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
+              >
+                <Bell className="w-5 h-5" />
+                {(nearbyReports.length > 0 || commentNotifs.length > 0) && (
+                  <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full ring-2 ring-white" />
+                )}
+              </button>
+
+              {notificationsDropdown && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setNotificationsDropdown(false)} />
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+                      <h3 className="text-sm font-bold text-slate-800">Notifications</h3>
+                      <span className="text-xs font-medium text-primary-600">{nearbyReports.length + commentNotifs.length} new</span>
                     </div>
-                    {notificationCount > 0 && <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">{notificationCount} new</span>}
+                    
+                    <div className="max-h-[400px] overflow-y-auto">
+                      {notifLoading ? (
+                        <div className="flex justify-center py-8">
+                          <Loader2 className="w-5 h-5 animate-spin text-primary-500" />
+                        </div>
+                      ) : (nearbyReports.length === 0 && commentNotifs.length === 0) ? (
+                        <div className="text-center py-8 px-4">
+                          <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                          <p className="text-sm text-slate-400">No new notifications</p>
+                        </div>
+                      ) : (
+                        <>
+                          {commentNotifs.slice(0, 5).map((comment: any) => (
+                            <div
+                              key={`comment-${comment.id}`}
+                              onClick={() => {
+                                setNotificationsDropdown(false);
+                                router.push(`/report/${comment.report.id}`);
+                              }}
+                              className="px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3"
+                            >
+                              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
+                                <MessageSquare className="w-4 h-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <p className="text-sm text-slate-800">
+                                  <span className="font-semibold">{comment.author?.name || 'Someone'}</span> 
+                                  {comment.parent?.authorId === user?.uid ? ' replied to your comment on: ' : ' commented on your report: '}
+                                  <span className="font-medium">{comment.report.title}</span>
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                          {nearbyReports.slice(0, 5).map((report: any) => (
+                            <div
+                              key={`report-${report.id}`}
+                              onClick={() => {
+                                setNotificationsDropdown(false);
+                                router.push(`/report/${report.id}`);
+                              }}
+                              className="px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3"
+                            >
+                              <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center shrink-0 mt-0.5">
+                                <MapPin className="w-4 h-4 text-rose-600" />
+                              </div>
+                              <div>
+                                <p className="text-sm text-slate-800">
+                                  <span className="font-semibold">{report.title}</span>
+                                </p>
+                                <p className="text-xs text-slate-500 mt-1">
+                                  {report.distance}km away • by {report.author?.name || 'Unknown'}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                    
+                    <Link href="/settings" onClick={() => setNotificationsDropdown(false)} className="block px-4 py-2.5 text-center text-xs font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-700 transition-colors border-t border-slate-100">
+                      View Notification Settings
+                    </Link>
                   </div>
-                  <div className="max-h-[380px] overflow-y-auto p-2">
-                    {notificationsLoading ? (
-                      <div className="flex items-center justify-center gap-2 py-12 text-sm text-slate-500">
-                        <Loader2 className="h-4 w-4 animate-spin text-indigo-600" /> Checking nearby activity…
-                      </div>
-                    ) : notificationCount === 0 ? (
-                      <div className="px-6 py-12 text-center">
-                        <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400"><Bell className="h-5 w-5" /></span>
-                        <p className="font-semibold text-slate-800">You’re all caught up</p>
-                        <p className="mt-1 text-xs leading-5 text-slate-500">New reports in your saved area and replies will appear here.</p>
-                      </div>
-                    ) : (
-                      <>
-                        {commentNotifications.slice(0, 5).map((comment) => (
-                          <button key={comment.id} onClick={() => { setNotificationsOpen(false); router.push(`/report/${comment.report.id}`); }} className="flex w-full gap-3 rounded-xl p-3 text-left transition-colors hover:bg-slate-50">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600"><MessageSquare className="h-4 w-4" /></span>
-                            <span className="min-w-0 text-sm leading-5 text-slate-600"><strong className="font-semibold text-slate-900">{comment.author?.name || 'Someone'}</strong>{comment.parent?.authorId === user?.uid ? ' replied on ' : ' commented on '}<strong className="font-semibold text-slate-800">{comment.report.title}</strong></span>
-                          </button>
-                        ))}
-                        {nearbyReports.slice(0, 5).map((report) => (
-                          <button key={report.id} onClick={() => { setNotificationsOpen(false); router.push(`/report/${report.id}`); }} className="flex w-full gap-3 rounded-xl p-3 text-left transition-colors hover:bg-slate-50">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600"><MapPin className="h-4 w-4" /></span>
-                            <span className="min-w-0"><span className="block truncate text-sm font-semibold text-slate-900">{report.title}</span><span className="mt-0.5 block text-xs text-slate-500">{report.distance} km away · {report.type === 'LOST' ? 'Lost' : 'Found'}</span></span>
-                          </button>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                  <Link href="/settings" onClick={() => setNotificationsOpen(false)} className="flex items-center justify-between border-t border-slate-100 bg-slate-50/70 px-5 py-3 text-xs font-bold text-indigo-700 hover:bg-indigo-50">
-                    Manage notification area <ChevronRight className="h-4 w-4" />
-                  </Link>
+                </>
+              )}
+            </div>
+
+            <div className="relative ml-4">
+              <button
+                onClick={() => setProfileDropdown(!profileDropdown)}
+                className="flex items-center"
+              >
+                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white text-sm font-medium border-2 border-white shadow-sm overflow-hidden hover:ring-2 hover:ring-primary-500/50 transition-all">
+                  {user?.photoURL ? (
+                    <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'
+                  )}
                 </div>
-              </>
-            )}
+              </button>
+
+              {profileDropdown && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setProfileDropdown(false)} />
+                  <div className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-xl shadow-xl border border-slate-100 z-50">
+                    <Link 
+                      href="/settings" 
+                      onClick={() => setProfileDropdown(false)}
+                      className="block px-4 py-3 border-b border-slate-50 mb-1 hover:bg-slate-50 transition-colors cursor-pointer"
+                    >
+                      <p className="text-sm font-semibold text-slate-800 truncate">{user?.displayName || 'User'}</p>
+                      <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                    </Link>
+                    <button
+                      onClick={async () => {
+                        setProfileDropdown(false);
+                        await signOut();
+                        router.push('/');
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
-          <div className="relative hidden sm:block">
-            <button type="button" onClick={() => { setProfileOpen((open) => !open); setNotificationsOpen(false); }} className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-slate-900 text-sm font-bold text-white ring-1 ring-slate-900/10 transition-shadow hover:ring-4 hover:ring-indigo-100" aria-label="Open profile menu" aria-expanded={profileOpen}>
-              {user?.photoURL ? <img src={user.photoURL} alt="" className="h-full w-full object-cover" /> : user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
-            </button>
-            {profileOpen && (
-              <>
-                <button className="fixed inset-0 z-40 cursor-default" onClick={() => setProfileOpen(false)} aria-label="Close profile menu" />
-                <div className="app-surface absolute right-0 z-50 mt-3 w-64 overflow-hidden rounded-2xl p-2">
-                  <Link href="/settings" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600"><CircleUserRound className="h-5 w-5" /></span>
-                    <span className="min-w-0"><span className="block truncate text-sm font-bold text-slate-900">{user?.displayName || 'Your profile'}</span><span className="block truncate text-xs text-slate-500">{user?.email}</span></span>
-                  </Link>
-                  <div className="my-1 h-px bg-slate-100" />
-                  <button onClick={handleSignOut} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50"><LogOut className="h-4 w-4" /> Sign out</button>
-                </div>
-              </>
-            )}
-          </div>
-
-          <button type="button" onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 lg:hidden" aria-label="Open navigation menu" aria-expanded={mobileMenuOpen}>
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
+      {/* Mobile menu */}
       {mobileMenuOpen && (
-        <nav className="border-t border-slate-100 bg-white px-4 pb-4 pt-3 lg:hidden" aria-label="Mobile navigation">
-          <div className="mx-auto grid max-w-lg grid-cols-2 gap-2">
-            {navLinks.map(({ href, label, icon: Icon }) => (
-              <Link key={href} href={href} onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${isActive(href) ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50'}`}>
-                <Icon className="h-4 w-4" /> {label}
-              </Link>
-            ))}
-            <Link href="/report/new" onClick={() => setMobileMenuOpen(false)} className="col-span-2 flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white"><Plus className="h-4 w-4" /> Create a report</Link>
-            <button onClick={handleSignOut} className="col-span-2 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-rose-600"><LogOut className="h-4 w-4" /> Sign out</button>
+        <div className="md:hidden border-t border-slate-200 bg-white animate-fade-in">
+          <div className="px-4 py-3 space-y-1">
+            {navLinks.map((link) => {
+              const active = isActive(link.href) || (link.href === '/dashboard' && pathname === '/');
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                    active
+                      ? 'bg-indigo-50 text-indigo-700'
+                      : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+            <div className="border-t border-slate-100 pt-2 mt-2">
+              <button
+                onClick={async () => {
+                  setMobileMenuOpen(false);
+                  await signOut();
+                  router.push('/');
+                }}
+                className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-xl"
+              >
+                <LogOut className="w-5 h-5" />
+                Sign Out
+              </button>
+            </div>
           </div>
-        </nav>
+        </div>
       )}
-    </header>
+    </nav>
   );
 }

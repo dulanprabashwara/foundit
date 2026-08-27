@@ -3,12 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { MapPin, Mail, Lock, User, Eye, EyeOff, ArrowRight, Search, Info, CheckCircle2, Shield, Users, RefreshCw, Share } from 'lucide-react';
+import { MapPin, Mail, Lock, User, Eye, EyeOff, ArrowRight, Search, Info, Compass, CheckCircle2, Shield, Users, RefreshCw, Share, Key } from 'lucide-react';
 import Link from 'next/link';
-
-function getErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error ? error.message.replace('Firebase: ', '') : fallback;
-}
 
 export default function LandingPage() {
   const { user, loading: authLoading, signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
@@ -58,8 +54,8 @@ export default function LandingPage() {
         await signUp(email, password, name);
       }
       router.push('/dashboard');
-    } catch (err: unknown) {
-      setError(getErrorMessage(err, 'Authentication failed'));
+    } catch (err: any) {
+      setError(err.message?.replace('Firebase: ', '') || 'Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -71,8 +67,8 @@ export default function LandingPage() {
       setSuccess('');
       await signInWithGoogle();
       router.push('/dashboard');
-    } catch (err: unknown) {
-      setError(getErrorMessage(err, 'Google sign-in failed'));
+    } catch (err: any) {
+      setError(err.message?.replace('Firebase: ', '') || 'Google sign-in failed');
     }
   };
 
@@ -87,8 +83,8 @@ export default function LandingPage() {
       setError('');
       await resetPassword(email.trim());
       setSuccess('Password reset link sent to your email!');
-    } catch (err: unknown) {
-      setError(getErrorMessage(err, 'Failed to send reset email'));
+    } catch (err: any) {
+      setError(err.message?.replace('Firebase: ', '') || 'Failed to send reset email');
       setSuccess('');
     } finally {
       setLoading(false);
@@ -103,9 +99,9 @@ export default function LandingPage() {
   if (authLoading) return null;
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-900 font-sans flex flex-col">
+    <div className="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col">
       {/* Top NavBar */}
-      <nav className={`fixed top-0 left-0 w-full z-40 flex justify-center px-4 md:px-10 h-16 md:h-20 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-xl shadow-sm border-b border-slate-200/70' : 'bg-white/75 backdrop-blur-xl border-b border-white/70'}`}>
+      <nav className={`fixed top-0 left-0 w-full z-40 flex justify-center px-4 md:px-10 h-16 md:h-20 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-sm border-b border-slate-200/50' : 'bg-white shadow-sm border-b border-slate-200'}`}>
         <div className="w-full max-w-7xl flex items-center justify-between mx-auto">
           {/* Brand */}
           <div className="flex items-center gap-2">
@@ -139,52 +135,44 @@ export default function LandingPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="grow pt-24 pb-24 md:pt-28 md:pb-32 flex flex-col items-center w-full overflow-hidden">
+      <main className="grow pt-20 pb-24 md:pb-32 flex flex-col items-center w-full overflow-hidden">
         <div className="w-full max-w-7xl px-4 md:px-10 space-y-24">
           
           {/* Hero Section */}
-          <section className="app-surface relative flex flex-col items-center gap-10 overflow-hidden rounded-[36px] p-6 sm:p-10 md:flex-row lg:gap-14 lg:p-14">
-            <div className="absolute -left-24 -top-32 h-80 w-80 rounded-full bg-indigo-100/80 blur-3xl" aria-hidden="true" />
-            <div className="absolute -bottom-36 right-10 h-72 w-72 rounded-full bg-emerald-100/70 blur-3xl" aria-hidden="true" />
-            <div className="relative z-10 flex-1 space-y-6 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-primary-700 font-bold text-[11px] tracking-[0.12em] uppercase">
+          <section className="flex flex-col md:flex-row items-center gap-12 pt-0">
+            <div className="flex-1 space-y-6 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full text-primary-600 font-semibold text-xs tracking-wider uppercase">
                 <Info className="w-4 h-4" />
-                Community-powered recovery
+                Lost & Found Platform
               </div>
-              <h1 className="text-balance text-4xl font-extrabold tracking-[-0.05em] text-slate-950 leading-[1.08] md:text-5xl lg:text-6xl">
-                Lost something? Your community can help.
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
+                Lost something? <br className="hidden md:block" />Start your search now.
               </h1>
-              <p className="text-base text-slate-500 max-w-2xl mx-auto md:mx-0 leading-7 sm:text-lg">
-                Post a lost or found item in minutes, explore verified local reports on a live map, and connect safely with the people who can help bring it home.
+              <p className="text-lg text-slate-500 max-w-2xl mx-auto md:mx-0 leading-relaxed">
+                Whether you've misplaced a cherished item or stumbled upon someone else's belongings, FoundIt is here to help. We connect people to recover what matters most across cities worldwide. Join our community to instantly post missing items, receive real-time alerts for nearby matches, and bring lost valuables back home where they belong.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 pt-4">
                 <button 
                   onClick={() => openAuth(false)}
-                  className="w-full sm:w-auto bg-slate-950 text-white px-7 py-3.5 rounded-xl font-bold hover:bg-primary-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-950/15"
+                  className="w-full sm:w-auto bg-primary-600 text-white px-8 py-3 rounded-full font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary-600/30"
                 >
                   Get Started
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => openAuth(true)}
-                  className="w-full sm:w-auto bg-white text-slate-700 border border-slate-200 px-7 py-3.5 rounded-xl font-bold hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full sm:w-auto bg-white text-slate-700 border border-slate-300 px-8 py-3 rounded-full font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
                 >
                   <Search className="w-4 h-4" />
                   Browse Items
                 </button>
               </div>
-              <div className="grid grid-cols-3 gap-3 border-t border-slate-200/80 pt-6 text-left">
-                <div><p className="text-lg font-extrabold text-slate-950">3 steps</p><p className="mt-0.5 text-[11px] font-medium text-slate-500">to publish</p></div>
-                <div><p className="text-lg font-extrabold text-slate-950">Map-first</p><p className="mt-0.5 text-[11px] font-medium text-slate-500">local discovery</p></div>
-                <div><p className="text-lg font-extrabold text-slate-950">Private</p><p className="mt-0.5 text-[11px] font-medium text-slate-500">account access</p></div>
-              </div>
             </div>
 
-            <div className="relative z-10 flex flex-1 w-full justify-center items-center lg:justify-end">
-              <div className="absolute inset-8 rounded-full bg-indigo-200/70 blur-3xl" aria-hidden="true" />
+            <div className="flex-1 relative w-full flex justify-center items-center lg:justify-end pl-0 lg:pl-12">
               <img 
                 alt="FoundIt Platform" 
-                className="relative w-full max-w-xl object-contain drop-shadow-2xl"
+                className="w-full max-w-xl object-contain mix-blend-multiply" 
                 src="/picture.png"
               />
             </div>
@@ -366,13 +354,12 @@ export default function LandingPage() {
 
       {/* Auth Modal Overlay */}
       {showAuthModal && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-4xl shadow-2xl w-full max-w-md overflow-hidden relative animate-fade-in-up" role="dialog" aria-modal="true" aria-labelledby="auth-dialog-title">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-4xl shadow-2xl w-full max-w-md overflow-hidden relative animate-fade-in-up">
             
             {/* Close Button */}
             <button 
               onClick={() => setShowAuthModal(false)}
-              aria-label="Close sign in dialog"
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors"
             >
               ✕
@@ -386,7 +373,7 @@ export default function LandingPage() {
               </div>
 
               <div className="text-center mb-8">
-                <h2 id="auth-dialog-title" className="text-2xl font-bold text-slate-900 mb-2">
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">
                   {isLogin ? 'Welcome back' : 'Create an account'}
                 </h2>
                 <p className="text-slate-500 text-sm">

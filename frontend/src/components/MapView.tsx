@@ -29,8 +29,6 @@ export default function MapView({
   className = '',
   interactive = true,
 }: MapViewProps) {
-  const centerLatitude = center[0];
-  const centerLongitude = center[1];
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
@@ -65,9 +63,6 @@ export default function MapView({
         zoomControl: true,
         scrollWheelZoom: interactive,
         dragging: interactive,
-        doubleClickZoom: interactive,
-        touchZoom: interactive,
-        keyboard: interactive,
       });
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -102,12 +97,6 @@ export default function MapView({
       }
     };
   }, [isClient]);
-
-  // Keep externally controlled map locations in sync after the map has mounted.
-  useEffect(() => {
-    if (!mapInstanceRef.current || selectedReportId) return;
-    mapInstanceRef.current.setView([centerLatitude, centerLongitude], zoom, { animate: true });
-  }, [centerLatitude, centerLongitude, zoom, selectedReportId]);
 
   // Update markers when reports or selectedReportId change
   useEffect(() => {
@@ -163,7 +152,7 @@ export default function MapView({
       const imageUrl = report.hasImage ? reportApi.getImageUrl(report.id) : null;
       
       const html = `
-        <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translate(-50%, -100%); width: 64px; height: 64px;">
+        <div style="position: relative; display: flex; flex-direction: column; items-center; justify-content: center; transform: translate(-50%, -100%); width: 64px; height: 64px;">
           ${isSelected ? `
             <div style="
               position: absolute;
@@ -290,7 +279,6 @@ export default function MapView({
       ref={mapRef}
       className={`rounded-2xl overflow-hidden ${className}`}
       style={{ minHeight: '300px' }}
-      aria-label={interactive ? 'Interactive report map' : 'Report location map'}
     />
   );
 }
