@@ -1,215 +1,103 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import useSWR from 'swr';
-import Navbar from '@/components/Navbar';
-import { reportApi } from '@/lib/api';
-import { Report, getCategoryInfo, CATEGORIES } from '@/lib/types';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Loader2, MapPin, Clock, Filter, X } from 'lucide-react';
-
-function timeAgo(dateString: string | Date) {
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (seconds < 60) return 'Just now';
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}mo ago`;
-  return `${Math.floor(months / 12)}y ago`;
-}
+import useSWR from 'swr';
+import { Filter, Loader2, Search, SearchX, Sparkles, X } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import ReportCard from '@/components/ReportCard';
+import { useAuth } from '@/contexts/AuthContext';
+import { reportApi } from '@/lib/api';
+import { CATEGORIES, type Report } from '@/lib/types';
 
 export default function SearchPage() {
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<string>('ALL');
-  const [reports, setReports] = useState<Report[]>([]);
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
+  const [activeCategory, setActiveCategory] = useState('ALL');
 
   useEffect(() => {
-    const saved = localStorage.getItem('foundit_geofence');
-    if (saved) {
-      try {
-        const geo = JSON.parse(saved);
-        setUserLocation({ latitude: geo.latitude, longitude: geo.longitude });
-      } catch (e) {}
-    } else {
-      setUserLocation({ latitude: 6.9271, longitude: 79.8612 });
-    }
-  }, []);
+    if (!authLoading && !user) router.push('/');
+  }, [authLoading, router, user]);
 
   useEffect(() => {
-    // Debounce search typing
-    const delayDebounceFn = setTimeout(() => {
-      setDebouncedQuery(query.trim());
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
+    const timeout = window.setTimeout(() => setDebouncedQuery(query.trim()), 400);
+    return () => window.clearTimeout(timeout);
   }, [query]);
 
-  // Fetcher for SWR
-  const fetcher = async () => {
-    return await reportApi.list({
+  const { data: reports = [], error, isLoading } = useSWR<Report[]>(
+    user ? `/reports/search?query=${debouncedQuery}&category=${activeCategory}` : null,
+    () => reportApi.list({
       query: debouncedQuery || undefined,
-      category: activeCategory !== 'ALL' ? activeCategory : undefined
-    });
-  };
-
-  const { data: swrReports = [], isLoading: loading } = useSWR(
-    `/api/reports/search?q=${debouncedQuery}&cat=${activeCategory}`,
-    fetcher,
-    { revalidateOnFocus: false, refreshInterval: 60000 }
+      category: activeCategory !== 'ALL' ? activeCategory : undefined,
+    }),
+    { keepPreviousData: true, revalidateOnFocus: false, refreshInterval: 60000 }
   );
 
-  useEffect(() => {
-    setReports(swrReports);
-  }, [swrReports]);
+  const hasFilters = Boolean(query) || activeCategory !== 'ALL';
+
+  if (authLoading || !user) {
+    return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-indigo-600" /></div>;
+  }
 
   return (
-    <div className="min-h-screen bg-transparent flex flex-col">
+    <div className="min-h-screen bg-transparent">
       <Navbar />
+      <main className="page-shell py-8 sm:py-10">
+        <section className="relative mb-8 overflow-hidden rounded-[32px] bg-slate-950 px-6 py-9 text-white shadow-2xl shadow-slate-950/10 sm:px-10 sm:py-12">
+          <div className="absolute -right-24 -top-28 h-72 w-72 rounded-full bg-indigo-500/30 blur-3xl" aria-hidden="true" />
+          <div className="absolute -bottom-36 left-1/3 h-64 w-64 rounded-full bg-emerald-400/15 blur-3xl" aria-hidden="true" />
+          <div className="relative max-w-3xl">
+            <span className="eyebrow text-indigo-300"><Sparkles className="h-3.5 w-3.5" /> Search the community</span>
+            <h1 className="mt-3 text-balance text-3xl font-extrabold tracking-[-0.04em] sm:text-4xl">A better chance of finding the right match.</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">Search active reports by title, then narrow the results to the category that best describes the item.</p>
 
-      <main className="flex-1 max-w-[1600px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-8 flex flex-col">
-        {/* Header & Search Bar */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-6">Search Reports</h1>
-          
-          <div className="relative max-w-4xl">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-6 w-6 text-slate-400" />
-            </div>
-            <input
-              type="text"
-              className="block w-full pl-12 pr-12 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent shadow-sm text-lg transition-all"
-              placeholder="Search lost items by name or description..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            {query && (
-              <button
-                onClick={() => setQuery('')}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            )}
+            <label className="relative mt-7 block max-w-2xl">
+              <span className="sr-only">Search report titles</span>
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Try “black wallet” or “golden retriever”"
+                autoFocus
+                className="w-full rounded-2xl border border-white/10 bg-white py-4 pl-12 pr-12 text-sm font-medium text-slate-900 shadow-xl outline-none placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-400/30"
+              />
+              {query && <button type="button" onClick={() => setQuery('')} className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Clear search"><X className="h-4 w-4" /></button>}
+            </label>
           </div>
-        </div>
+        </section>
 
-        {/* Categories */}
-        <div className="mb-8 overflow-x-auto pb-2 scrollbar-hide">
-          <div className="flex gap-3 md:justify-between w-full min-w-max md:min-w-0 md:flex-wrap">
-            <button
-              onClick={() => setActiveCategory('ALL')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${
-                activeCategory === 'ALL'
-                  ? 'bg-slate-800 text-white shadow-md border-transparent'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-black hover:text-black'
-              }`}
-            >
-              <Filter className="w-4 h-4" />
-              All Items
-            </button>
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.value}
-                onClick={() => setActiveCategory(cat.value)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${
-                  activeCategory === cat.value
-                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25 border-transparent'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-black hover:text-black'
-                }`}
-              >
-                <img src={cat.icon} alt={cat.label} className="w-5 h-5 object-contain" />
-                {cat.label}
+        <section className="app-surface mb-7 rounded-3xl p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-800"><Filter className="h-4 w-4 text-indigo-600" />Category</div>
+            {hasFilters && <button onClick={() => { setQuery(''); setActiveCategory('ALL'); }} className="text-xs font-bold text-indigo-700 hover:text-indigo-900">Reset</button>}
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            <button onClick={() => setActiveCategory('ALL')} className={`shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold transition ${activeCategory === 'ALL' ? 'bg-slate-950 text-white shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>All items</button>
+            {CATEGORIES.map((category) => (
+              <button key={category.value} onClick={() => setActiveCategory(category.value)} className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition ${activeCategory === category.value ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>
+                <img src={category.icon} alt="" className="h-4 w-4 object-contain" />{category.label}
               </button>
             ))}
           </div>
+        </section>
+
+        <div className="mb-5 flex items-center justify-between">
+          <p className="text-sm text-slate-500"><strong className="font-extrabold text-slate-900">{reports.length}</strong> {reports.length === 1 ? 'matching report' : 'matching reports'}</p>
+          {debouncedQuery !== query.trim() && <span className="flex items-center gap-2 text-xs font-medium text-slate-400"><Loader2 className="h-3.5 w-3.5 animate-spin" />Searching…</span>}
         </div>
 
-        {/* Results */}
-        <div className="flex-1">
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
-            </div>
-          ) : reports.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 px-6 bg-white border border-slate-200/60 rounded-3xl shadow-xs animate-fade-in relative overflow-hidden max-w-2xl mx-auto mt-4">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-primary-50 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/3"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60 translate-y-1/2 -translate-x-1/3"></div>
-
-              <div className="relative w-24 h-24 mb-6">
-                <div className="absolute inset-0 bg-primary-100 rounded-full animate-ping opacity-20"></div>
-                <div className="relative w-full h-full bg-linear-to-br from-white to-primary-50 border border-primary-100 rounded-full flex items-center justify-center shadow-lg shadow-primary-500/10">
-                  <Search className="w-10 h-10 text-primary-500 drop-shadow-sm" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-3 relative z-10">No results found</h3>
-              <p className="text-base text-slate-500 text-center max-w-md mb-2 relative z-10 leading-relaxed">
-                We couldn't find any reports matching "{query}". Try adjusting your search terms or filters.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {reports.map((report) => {
-                const catInfo = getCategoryInfo(report.category);
-                return (
-                  <div
-                    key={report.id}
-                    onClick={() => router.push(`/report/${report.id}`)}
-                    className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-primary-200 transition-all cursor-pointer flex flex-col"
-                  >
-                    <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
-                      {report.hasImage ? (
-                        <img
-                          src={reportApi.getImageUrl(report.id)}
-                          alt={report.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 group-hover:scale-105 transition-transform duration-500">
-                          <img src={catInfo.icon} alt={catInfo.label} className="w-16 h-16 object-contain mb-2 opacity-50" />
-                        </div>
-                      )}
-                      <div className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-slate-700 shadow-sm flex items-center gap-1.5">
-                        <img src={catInfo.icon} alt={catInfo.label} className="w-4 h-4 object-contain" />
-                        {catInfo.label}
-                      </div>
-                      {report.status === 'RESOLVED' && (
-                        <div className="absolute top-3 right-3 px-3 py-1 bg-emerald-500 text-white rounded-full text-xs font-bold shadow-sm">
-                          RESOLVED
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-5 flex flex-col flex-1">
-                      <h3 className="text-lg font-bold text-slate-900 mb-2 line-clamp-1 group-hover:text-primary-600 transition-colors">
-                        {report.title}
-                      </h3>
-                      <p className="text-sm text-slate-500 line-clamp-2 mb-4 flex-1">
-                        {report.description}
-                      </p>
-
-                      <div className="flex items-center justify-between text-xs font-medium text-slate-400 pt-4 border-t border-slate-100">
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>{timeAgo(report.createdAt)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        {error ? (
+          <div className="app-surface rounded-3xl px-6 py-16 text-center"><SearchX className="mx-auto h-8 w-8 text-rose-400" /><h2 className="mt-4 font-bold text-slate-900">Search is temporarily unavailable</h2><p className="mt-1 text-sm text-slate-500">Please refresh the page and try again.</p></div>
+        ) : isLoading ? (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{Array.from({ length: 8 }).map((_, index) => <div key={index} className="h-[390px] animate-pulse rounded-3xl border border-slate-200 bg-white"><div className="h-52 rounded-t-3xl bg-slate-100" /><div className="space-y-3 p-5"><div className="h-4 w-1/3 rounded bg-slate-100" /><div className="h-5 w-3/4 rounded bg-slate-100" /><div className="h-4 w-full rounded bg-slate-100" /></div></div>)}</div>
+        ) : reports.length === 0 ? (
+          <div className="app-surface rounded-[32px] px-6 py-16 text-center"><span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-indigo-50 text-indigo-500"><SearchX className="h-7 w-7" /></span><h2 className="mt-5 text-xl font-extrabold text-slate-900">No matching reports yet</h2><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">Try a shorter title or a different category. New community reports are added throughout the day.</p><button onClick={() => { setQuery(''); setActiveCategory('ALL'); }} className="mt-6 rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">Browse all reports</button></div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{reports.map((report, index) => <ReportCard key={report.id} report={report} index={index} />)}</div>
+        )}
       </main>
     </div>
   );

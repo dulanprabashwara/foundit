@@ -23,12 +23,11 @@ export default function RootLayout({
           crossOrigin=""
         />
       </head>
-      <body className="min-h-screen bg-slate-50 antialiased relative">
-        {/* Global Animated Background */}
-        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/40 blur-3xl animate-blob mix-blend-multiply" />
-          <div className="absolute top-[20%] right-[-10%] w-[35%] h-[35%] rounded-full bg-indigo-400/40 blur-3xl animate-blob animation-delay-2000 mix-blend-multiply" />
-          <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] rounded-full bg-purple-400/40 blur-3xl animate-blob animation-delay-4000 mix-blend-multiply" />
+      <body className="min-h-screen antialiased relative">
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+          <div className="soft-grid absolute inset-x-0 top-0 h-[720px] opacity-80" />
+          <div className="absolute -top-48 left-[8%] h-96 w-96 rounded-full bg-indigo-200/45 blur-3xl" />
+          <div className="absolute top-28 right-[4%] h-80 w-80 rounded-full bg-emerald-100/55 blur-3xl" />
         </div>
         
         <div className="relative z-10 flex flex-col min-h-screen">

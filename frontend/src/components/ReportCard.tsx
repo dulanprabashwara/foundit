@@ -1,143 +1,18 @@
 'use client';
 
-import React from 'react';
-import { Report, getCategoryInfo } from '@/lib/types';
-import { reportApi } from '@/lib/api';
-import { MapPin, MessageSquare, Clock, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import { ArrowUpRight, Clock3, MapPin, MessageCircle } from 'lucide-react';
 import LocationName from './LocationName';
+import { reportApi } from '@/lib/api';
+import { getCategoryInfo, type Report } from '@/lib/types';
 
 interface ReportCardProps {
   report: Report;
   index?: number;
 }
 
-export default function ReportCard({ report, index = 0 }: ReportCardProps) {
-  const categoryInfo = getCategoryInfo(report.category);
-  const isResolved = report.status === 'RESOLVED';
-  const timeAgo = getTimeAgo(new Date(report.createdAt));
-
-  return (
-    <Link
-      href={`/report/${report.id}`}
-      className={`block group animate-fade-in-up stagger-${Math.min(index + 1, 8)}`}
-      style={{ opacity: 0 }}
-    >
-      <div
-        className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${
-          isResolved
-            ? 'bg-slate-50 border-slate-200 opacity-60'
-            : 'bg-white border-slate-200 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-500/5 hover:-translate-y-0.5'
-        }`}
-      >
-        {/* Top Badges */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-          <div className="flex gap-2">
-            {/* Type Badge */}
-            <div className={`flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm ${
-              report.type === 'FOUND' 
-                ? 'bg-emerald-500 text-white' 
-                : 'bg-rose-500 text-white'
-            }`}>
-              {report.type === 'FOUND' ? 'FOUND' : 'LOST'}
-            </div>
-            
-            {/* Location Badge */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-white/90 backdrop-blur-sm text-slate-800 rounded-full text-[10px] font-bold shadow-sm">
-              <MapPin className="w-3 h-3 text-rose-500" />
-              <LocationName latitude={report.latitude} longitude={report.longitude} className="max-w-20 truncate" />
-            </div>
-          </div>
-          
-          {/* Status Badge */}
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm ${
-            isResolved 
-              ? 'bg-slate-200 text-slate-700' 
-              : 'bg-emerald-200 text-emerald-800'
-          }`}>
-            <img 
-              src={isResolved ? '/resolved.png' : '/active.png'} 
-              alt={isResolved ? 'Resolved' : 'Active'} 
-              className="w-3.5 h-3.5 object-contain" 
-            />
-            {isResolved ? 'RESOLVED' : 'ACTIVE'}
-          </div>
-        </div>
-
-        {/* Image */}
-        {report.hasImage ? (
-          <div className="relative h-48 overflow-hidden bg-slate-100">
-            <img
-              src={reportApi.getImageUrl(report.id)}
-              alt={report.title}
-              className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
-                isResolved ? 'grayscale opacity-80' : ''
-              }`}
-              loading="lazy"
-            />
-          </div>
-        ) : (
-          <div className={`h-48 flex items-center justify-center bg-indigo-50/50`}>
-                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 group-hover:scale-105 transition-transform duration-500">
-                  <img src={categoryInfo.icon} alt={categoryInfo.label} className="w-16 h-16 object-contain mb-2 opacity-50" />
-                </div>
-          </div>
-        )}
-
-        {/* Content */}
-        <div className="p-5">
-          {/* Title */}
-          <h3 className={`font-bold text-lg mb-2 line-clamp-1 ${
-            isResolved ? 'text-slate-500' : 'text-slate-800 group-hover:text-indigo-700'
-          } transition-colors`}>
-            {report.title}
-          </h3>
-
-          {/* Description */}
-          <p className="text-sm text-slate-500 line-clamp-2 mb-4 leading-relaxed">
-            {report.description}
-          </p>
-
-          {/* Tags */}
-          <div className="flex items-center gap-2 mb-4">
-            <span
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700"
-            >
-              <img src={categoryInfo.icon} alt={categoryInfo.label} className="w-4 h-4 object-contain" />
-              {categoryInfo.label}
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-600">
-              <Clock className="w-3.5 h-3.5" />
-              {timeAgo}
-            </span>
-          </div>
-
-          <div className="h-px w-full bg-slate-100 mb-4" />
-
-          {/* Footer */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">
-                {report.author?.name?.[0]?.toUpperCase() || 'U'}
-              </div>
-              <span className="text-xs font-medium text-slate-500">{report.author?.name || 'User'}</span>
-            </div>
-            
-            <span className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center">
-              {isResolved ? 'View Details' : 'View Report'}
-              <svg className="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </span>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
 function getTimeAgo(date: Date): string {
-  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+  const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
   if (seconds < 60) return 'Just now';
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
@@ -145,5 +20,86 @@ function getTimeAgo(date: Date): string {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d ago`;
-  return date.toLocaleDateString();
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+export default function ReportCard({ report, index = 0 }: ReportCardProps) {
+  const category = getCategoryInfo(report.category);
+  const resolved = report.status === 'RESOLVED';
+  const commentCount = report._count?.comments || report.comments?.length || 0;
+
+  return (
+    <Link
+      href={`/report/${report.id}`}
+      className={`group block h-full animate-fade-in-up stagger-${Math.min(index + 1, 8)}`}
+      style={{ opacity: 0 }}
+      aria-label={`View ${report.type.toLowerCase()} report: ${report.title}`}
+    >
+      <article className={`flex h-full flex-col overflow-hidden rounded-3xl border bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_18px_45px_rgba(16,24,40,0.10)] ${resolved ? 'border-slate-200 opacity-75' : 'border-slate-200/90 group-hover:border-indigo-200'}`}>
+        <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+          {report.hasImage ? (
+            <img
+              src={reportApi.getImageUrl(report.id)}
+              alt={report.title}
+              className={`h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04] ${resolved ? 'grayscale' : ''}`}
+              loading="lazy"
+            />
+          ) : (
+            <div className="relative flex h-full items-center justify-center overflow-hidden bg-linear-to-br from-slate-50 via-white to-indigo-50">
+              <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-indigo-100/70 blur-2xl" />
+              <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white shadow-lg shadow-slate-200/60 ring-1 ring-slate-200/70 transition-transform duration-500 group-hover:scale-105">
+                <img src={category.icon} alt="" className="h-11 w-11 object-contain" />
+              </div>
+            </div>
+          )}
+
+          <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3.5">
+            <span className={`rounded-full px-3 py-1.5 text-[10px] font-extrabold tracking-[0.09em] text-white shadow-sm backdrop-blur ${report.type === 'FOUND' ? 'bg-emerald-600/95' : 'bg-rose-600/95'}`}>
+              {report.type}
+            </span>
+            <span className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-extrabold tracking-[0.06em] shadow-sm backdrop-blur ${resolved ? 'bg-slate-900/80 text-white' : 'bg-white/92 text-emerald-700'}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${resolved ? 'bg-slate-300' : 'bg-emerald-500'}`} />
+              {resolved ? 'RESOLVED' : 'ACTIVE'}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-1 flex-col p-5">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <span className="inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-2.5 py-1.5 text-[11px] font-bold text-indigo-700">
+              <img src={category.icon} alt="" className="h-4 w-4 object-contain" />
+              {category.label}
+            </span>
+            <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+              <Clock3 className="h-3.5 w-3.5" />
+              {getTimeAgo(new Date(report.createdAt))}
+            </span>
+          </div>
+
+          <h3 className="line-clamp-1 text-[17px] font-extrabold tracking-[-0.02em] text-slate-900 transition-colors group-hover:text-indigo-700">
+            {report.title}
+          </h3>
+          <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-500">{report.description}</p>
+
+          <div className="mt-4 flex items-center gap-2 text-xs font-medium text-slate-500">
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-indigo-500" />
+            <LocationName latitude={report.latitude} longitude={report.longitude} className="truncate" />
+          </div>
+
+          <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-[10px] font-extrabold text-white">
+                {report.author?.name?.[0]?.toUpperCase() || 'U'}
+              </span>
+              <span className="truncate text-xs font-semibold text-slate-600">{report.author?.name || 'Community member'}</span>
+            </div>
+            <div className="ml-3 flex items-center gap-3">
+              <span className="flex items-center gap-1 text-xs font-semibold text-slate-400"><MessageCircle className="h-3.5 w-3.5" />{commentCount}</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-50 text-slate-500 transition-all group-hover:bg-indigo-600 group-hover:text-white"><ArrowUpRight className="h-4 w-4" /></span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </Link>
+  );
 }

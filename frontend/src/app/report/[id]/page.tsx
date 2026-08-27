@@ -52,6 +52,7 @@ export default function ReportDetailPage() {
   const [editSaving, setEditSaving] = useState(false);
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
   const [locationName, setLocationName] = useState<string>('Loading location...');
+  const [shareCopied, setShareCopied] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -161,6 +162,10 @@ export default function ReportDetailPage() {
   const handleEditImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file');
+      return;
+    }
     if (file.size > 5 * 1024 * 1024) {
       setError('Image must be less than 5MB');
       return;
@@ -179,9 +184,7 @@ export default function ReportDetailPage() {
       const formData = new FormData();
       formData.append('title', editTitle.trim());
       formData.append('description', editDescription.trim());
-      if (editContactInfo.trim()) {
-        formData.append('contactInfo', editContactInfo.trim());
-      }
+      formData.append('contactInfo', editContactInfo.trim());
       formData.append('category', editCategory);
       if (editPosition) {
         formData.append('latitude', String(editPosition[0]));
@@ -211,6 +214,20 @@ export default function ReportDetailPage() {
       router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to delete report');
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = { title: report?.title || 'FoundIt report', url: window.location.href };
+    try {
+      if (navigator.share) await navigator.share(shareData);
+      else {
+        await navigator.clipboard.writeText(window.location.href);
+        setShareCopied(true);
+        window.setTimeout(() => setShareCopied(false), 2000);
+      }
+    } catch {
+      // The native share sheet can be dismissed without requiring an error state.
     }
   };
 
@@ -263,15 +280,12 @@ export default function ReportDetailPage() {
     <div className="min-h-screen bg-transparent">
       <Navbar />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+      <main className="page-shell max-w-5xl py-8 sm:py-10">
         {/* Back button */}
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </button>
+        <div className="mb-6 flex items-center justify-between">
+          <button onClick={() => router.back()} className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors"><ArrowLeft className="w-4 h-4" />Back</button>
+          <button onClick={handleShare} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"><Share2 className="h-4 w-4" />{shareCopied ? 'Link copied' : 'Share report'}</button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main content */}
@@ -288,7 +302,7 @@ export default function ReportDetailPage() {
             )}
 
             {/* Details card */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm animate-fade-in-up">
+            <div className="app-surface rounded-3xl p-6 animate-fade-in-up sm:p-7">
               {/* Status & Category */}
               <div className="flex items-center gap-2 mb-4">
                 <span
@@ -507,7 +521,7 @@ export default function ReportDetailPage() {
             </div>
 
             {/* Comments */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm animate-fade-in-up">
+            <div className="app-surface rounded-3xl p-6 animate-fade-in-up sm:p-7">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-primary-500" />
                 Comments

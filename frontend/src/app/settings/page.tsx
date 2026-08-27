@@ -56,7 +56,7 @@ export default function ProfilePage() {
   const [nearbyReportsNotification, setNearbyReportsNotification] = useState<Report[]>([]);
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
   const [notificationError, setNotificationError] = useState('');
-  const [notificationSaved, setNotificationSaved] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
   const [geolocating, setGeolocating] = useState(false);
 
   useEffect(() => {
@@ -90,10 +90,14 @@ export default function ProfilePage() {
   useEffect(() => {
     const savedSettings = localStorage.getItem('foundit_geofence');
     if (savedSettings) {
-      const settings = JSON.parse(savedSettings);
-      setLatitude(settings.latitude || 6.9271);
-      setLongitude(settings.longitude || 79.8612);
-      setRadius(settings.radius || 5);
+      try {
+        const settings = JSON.parse(savedSettings);
+        setLatitude(settings.latitude || 6.9271);
+        setLongitude(settings.longitude || 79.8612);
+        setRadius(settings.radius || 5);
+      } catch {
+        localStorage.removeItem('foundit_geofence');
+      }
     }
   }, []);
 
@@ -126,6 +130,7 @@ export default function ProfilePage() {
 
   const handleSaveChanges = async () => {
     setSavingProfile(true);
+    setSaveStatus('idle');
     
     try {
       // Save profile data
@@ -137,14 +142,15 @@ export default function ProfilePage() {
         JSON.stringify({ latitude, longitude, radius })
       );
 
-      alert('Profile and Notification Settings updated successfully!');
       setOriginalFullName(fullName);
       setOriginalPhoneNumber(phoneNumber);
       setOriginalPhotoUrl(photoUrl);
       setIsEditingProfile(false);
+      setSaveStatus('saved');
+      window.setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
       console.error('Failed to save changes:', error);
-      alert('Failed to save changes. Please try again.');
+      setSaveStatus('error');
     } finally {
       setSavingProfile(false);
     }
@@ -153,6 +159,14 @@ export default function ProfilePage() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      if (!file.type.startsWith('image/')) {
+        setSaveStatus('error');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setSaveStatus('error');
+        return;
+      }
       setPhotoFile(file);
       setPhotoUrl(URL.createObjectURL(file));
     }
@@ -200,7 +214,7 @@ export default function ProfilePage() {
     try {
       const result = await notificationApi.check(latitude, longitude, radius);
       setNearbyReportsNotification(result.reports);
-      setNearbyCount(result.count);
+      setNearbyCount(result.reports?.length || 0);
     } catch (err: any) {
       setNotificationError(err.message || 'Failed to check nearby reports');
     } finally {
@@ -220,7 +234,12 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-transparent flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 pb-16">
+      <main className="page-shell max-w-5xl flex-1 py-8 pb-16 sm:py-10">
+        <div className="mb-8">
+          <span className="eyebrow"><SettingsIcon className="h-3.5 w-3.5" /> Account preferences</span>
+          <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-4xl">Profile and notifications</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Keep your contact profile current and choose the area where local reports matter most to you.</p>
+        </div>
         
         {/* Profile Header Card */}
         <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between mb-6 gap-6 md:gap-0">
@@ -563,11 +582,17 @@ export default function ProfilePage() {
         </div>
 
         {/* Global Save Button */}
-        <div className="flex justify-center">
+        <div className="app-surface sticky bottom-4 z-30 flex flex-col items-center justify-between gap-3 rounded-2xl p-3 sm:flex-row sm:pl-5">
+          <div className="text-center sm:text-left">
+            <p className="text-sm font-bold text-slate-800">Save profile and alert area</p>
+            <p className={`text-xs ${saveStatus === 'error' ? 'text-rose-600' : saveStatus === 'saved' ? 'text-emerald-600' : 'text-slate-500'}`}>
+              {saveStatus === 'saved' ? 'Your changes were saved successfully.' : saveStatus === 'error' ? 'We could not save that change. Check the image size and try again.' : 'Profile details and geofence settings are saved together.'}
+            </p>
+          </div>
           <button
             onClick={handleSaveChanges}
             disabled={savingProfile}
-            className="w-full max-w-sm py-4 bg-indigo-600 text-white font-bold rounded-full hover:bg-indigo-700 transition-all flex items-center justify-center shadow-lg shadow-indigo-500/30 disabled:opacity-70"
+            className="w-full sm:w-auto sm:min-w-52 py-3 px-6 bg-slate-950 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all flex items-center justify-center shadow-lg shadow-slate-950/15 disabled:opacity-70"
           >
             {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save All Changes'}
           </button>
